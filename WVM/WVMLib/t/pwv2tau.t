@@ -10,6 +10,7 @@ use Test;
 # BEGIN { $| = 1; print "1..1\n"; }
 # END {print "not ok 1\n" unless $loaded;}
 BEGIN { plan tests => 2 };
+use lib '/jac_sw/itsroot/install/wvm/lib/site_perl';
 use WVM;
 #$loaded = 1;
 #print "ok 1\n";
@@ -22,6 +23,6 @@ ok(1);
 # of the test code):
 
 my ($airmass,$pwv) = (1.478900, 4.640000);
-my $retval = sprintf("%8.6f", WvmTau::pwv2tau($airmass,$pwv));
+my $retval = sprintf("%8.6f", WVM::pwv2tau($airmass,$pwv));
 print("airmass: $airmass and pwv $pwv give tau of $retval\n");
 ok($retval, 0.221604);

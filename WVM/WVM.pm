@@ -32,6 +32,7 @@ use Time::Piece;
 use Time::Seconds;
 use Time::Local;
 use GD;
+use WvmTau;
 
 use constant BYTES_PER_LINE => 80;
 our $VERSION = '0.01';
@@ -55,14 +56,6 @@ our %plot_def=(xw => 500,                # Size of the plot
               ye => 50,
               );
 
-# THESE ARE THE COEFICIENTS TO BE USED IN THE Convert SUBROUTINE
-
-our @wvm_cso_coefs = (-0.37325545, 38.769126, -13.05137, -25.278241,
-		      31.155206, -16.233469, 4.8036578, -0.86140855, 0.092759443,
-		      -0.0055237545, 0.00013989644);
-our @coefs_m1 = (0.038863637, -0.18578918, 0.034048884);
-our @coefs_m2 = (-0.0073803229, 0.027694585, -0.010215906);
-our @coefs_c = (-0.026203715, 1.1069635, 0.073422855);
 our $ourLastTime = gmtime();
 our $ourLastVal = 0.0;
 our $running = 0;
@@ -263,7 +256,8 @@ sub read_new_data {
     #print "File is: $file\n";
     #chdir  $file or die "Couldn't cd to $file";
     my $size = (-s $file);
-    open DATAFILE, $file;
+    open DATAFILE, $file or 
+	die "Could not open $file: $!\n";
     seek DATAFILE, -(BYTES_PER_LINE)*2, 2;	# Read backwards 2 lines from EOF
 
     my $floatUTtime;
@@ -273,8 +267,8 @@ sub read_new_data {
 	my @string = split /\s+/, $_;
 	$floatUTtime = $string[0];
 	my $time = getTime($floatUTtime, $file);
-	#print "wvm_old: $string[9] airmass: $string[1]\n";
-	$newdata{$time} = Convert($string[9], $string[1]);
+	#print "wvm_old: $string[8] airmass: $string[1]\n";
+	$newdata{$time} = sprintf("%6.4f", WvmTau::pwv2tau($string[1], $string[8]));
 	$ourLastVal = $newdata{$time};
 	$ourLastTime = $time;
     }
@@ -283,7 +277,8 @@ sub read_new_data {
     my $fileStr = $t->ymd("");
     my $processedFile = $DATA_DIR . $fileStr . "/" . "calibrated.wvm";
     #print "My filestr = $processedFile\n";
-    open FILE, ">>$processedFile";
+    open FILE, ">>$processedFile" 
+	or die "Could not open $processedFile: $!\n";
     print FILE "$floatUTtime   $ourLastVal\n";
     close FILE;
 
@@ -346,7 +341,7 @@ sub read_data {
       $nofiles++;
       #chdir "$file" or die "Could not cd to $file";
       open my $DATAFILE, "<$file"
-	  or die "Couldn't open $file";
+	  or die "Couldn't open $file: $!\n";
       local $/="\n";
       while (<$DATAFILE>) {
 	  $_ =~ s/^\s+//;
@@ -355,7 +350,7 @@ sub read_data {
 
 	  #print "wvm_old: $string[9] airmass: $string[1]\n";
 
-	  $wvmdata{$time} = Convert($string[9], $string[1]);
+	  $wvmdata{$time} = sprintf("%6.4f", WvmTau::pwv2tau($string[1], $string[8]));
 	  $tempTime = $time;
       }
   }
@@ -487,12 +482,11 @@ sub graph {
   unless (scalar(keys %$wvmdata) == 0) {
 
     # FIND THE MAX AND MIN y-VALUES IN THE REQUIRED RANGE
-
-    my @graph_info;
     my ($maxval, $minval);
-    $maxval=-1000, $minval=1000;
-    my $i;
-    foreach $i (sort keys %$wvmdata) {
+    $maxval = -1000;
+    $minval = 1000;
+
+    foreach my $i (sort keys %$wvmdata) {
       if ($i < $graph_info{xstart} || $i > $graph_info{xend}) {
 	next;
       }
@@ -509,6 +503,7 @@ sub graph {
       $minval= $minval - 0.1;
     }
 
+    #print "The min and max vals are: $minval, $maxval\n";
     # LIMIT THE MAXIMUM TO AVOID PROBLEMS WHEN THE ROOF IS SHUT
 
     if ($maxval > $maxval_on_graph) {
@@ -531,8 +526,7 @@ sub graph {
     }
 
     my $count_points=0;
-    foreach $i (sort keys %$wvmdata) {
-	
+    foreach my $i (sort keys %$wvmdata) {
 	if ($i < $graph_info{xstart} || $i > $graph_info{xend}) {next}
 	$count_points++;
     }
@@ -547,7 +541,7 @@ sub graph {
     my $firstpoint=0;
     my $tempcounter=0;
     my ($timetemp,$wvmtemp);
-    foreach $i (sort keys %$wvmdata) {
+    foreach my $i (sort keys %$wvmdata) {
       if ($i < $graph_info{xstart} || $i > $graph_info{xend}) {next;} 
       if ($firstpoint == 0) {
 	$timetemp=$i;
@@ -614,7 +608,8 @@ sub graph {
     binmode STDOUT;
     print $g_f->png;
   } elsif ($mode eq 'GD' && $graph_filename =~ /\w+/) {
-    open GRAPH, ">$graph_filename";
+    open GRAPH, ">$graph_filename" 
+	or die "Could not open $graph_filename: $!\n";
     binmode GRAPH; 
 
     print GRAPH $g_f->png;
@@ -754,58 +749,6 @@ sub graph {
 #     }
 # }
 
-
-
-=item B<Convert>
-Apply the conversion to scale from mmH20 vapor into tau225
-
-    $result = $wvm -> Convert($mmH20, $airmass);
-
-=cut
-
-sub Convert {
-
-  # ACCEPTS AS INPUT A READING FROM THE WVM IN mm AND AND AIRMASS
-  # RETURNS A WVM READING IN "CSO TAU225 EQUIVALENT" UNITS, CORRECTED FOR AIRMASS
-
-  my ($wvm_old, $airmass) = @_;
-
-  # UNCOMMENT THIS LINE TO HAVE NO CORRECTIONS APPLIED  (OTHER THAN /18.5)
-
-  if ($wvm_old > 7.747) {
-      return sprintf("%6.4f",$wvm_old/21);
-  }
-
-  # APPLY THE AIRMASS CORRECTION (LINEAR MODE)
-
-  #      my $const_m =-0.020508261*$string[10]**2+0.010012658*$string[10]-0.0025479443;
-  #      my $const_c =0.048897956*$string[10]**2+0.84595076*$string[10]+0.14592531;
-  #      my $correction = ($const_m+$const_c)-($const_m*$air_mass+$const_c);
-  #      $wvm_temp=$wvm_old+$correction;
-
-  # APPLY THE AIRMASS CORRECTION (POLYNOMIAL MODE)
-
-  my $const_m2 = $coefs_m2[0] * $wvm_old**2 + $coefs_m2[1] *$wvm_old + $coefs_m2[2];
-  my $const_m1  = $coefs_m1[0]  *$wvm_old**2 + $coefs_m1[1]  *$wvm_old + $coefs_m1[2];
-  my $const_c  = $coefs_c[0]  *$wvm_old**2 + $coefs_c[1]  *$wvm_old + $coefs_m1[2];
-  my $correction = ($const_m2+$const_m1+$const_c)-($const_m2*$airmass**2+$const_m1*$airmass+$const_c);
-
-  my $wvm_temp = $wvm_old + $correction;
-
-  # APPLY THE CSO TAU CONVERSION
-
-  my $j;
-  my $mult=0;
-  for ($j=0; $j<=$#wvm_cso_coefs; $j++) {
-    $mult += $wvm_cso_coefs[$j]*$wvm_temp**($j);
-  }
-
-  my $wvm_new = $wvm_temp/$mult;
-
-  # RETURN THE CORRECTED AND CONVERTED WVM VALUE
-  
-  return sprintf("%6.4f",$wvm_new);
-}
 
 =back
 

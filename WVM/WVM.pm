@@ -220,6 +220,7 @@ sub read_data {
 
   foreach my $file ($self->_getFiles()) {
       $numfiles++;
+
       #chdir "$file" or die "Could not cd to $file";
       open my $DATAFILE, "<$file"
 	  or die "Couldn't open $file: $!\n";
@@ -256,9 +257,9 @@ sub read_data {
 
 	  # Convert fractional hour to an epoch
 	  # by adding it to the base
-	  my $time = $dt->clone->add( hours => $string[0] )->epoch;
+	  my $time = $dt->clone->add( hours => $string[0] )->hires_epoch;
 
-	  # print "pwv: $string[9] airmass: $string[1]  hr: $string[0]\n";
+	  # print "pwv: $string[9] airmass: $string[1]  hr: $string[0] time: $time\n";
 	  my $tau = sprintf("%6.4f", pwv2tau($string[1], $string[9]));
 
 	  # Note that we do get rounding errors when using a integer
@@ -456,9 +457,25 @@ sub _getFiles {
 
     my $start = $self->start_time;
     my $end   = $self->end_time;
-    my $date = $start->clone;
+
+    # Need to start with just Y M and D
+    my $date = new DateTime( year => $start->year,
+			     month => $start->month,
+			     day => $start->day
+			   );
+
+    # if the end date starts with 00:00 then we should not bother
+    # opening the file
+    my $enddate = new DateTime( year => $end->year,
+				month => $end->month,
+				day => $end->day,
+			      );
+    $enddate->subtract( seconds => 1 )
+      if ($end->hour == 0 && $end->minute == 0 && $end->second == 0);
+
 
     my @files;
+    # Now we can loop until our ref date is greater than the end date
     while ($date < $end) {
         my $ymd = $date->strftime('%Y%m%d');
 	my $file = File::Spec->catfile( $self->data_root, $ymd, "$ymd.wvm");

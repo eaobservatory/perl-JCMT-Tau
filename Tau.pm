@@ -264,8 +264,8 @@ of the function:
 
 =cut
 
-sub airmass {
-  carp 'Usage: airmass($elevation)' unless scalar(@_) == 1;
+sub airmass ($) {
+  croak 'Usage: airmass($elevation)' unless scalar(@_) == 1;
 
   my $el = shift;
 

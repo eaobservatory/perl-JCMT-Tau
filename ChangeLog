@@ -1,3 +1,7 @@
+1999-10-22  Tim Jenness  <timj@jach.hawaii.edu>
+
+	* Tau.pm (airmass): Should have croaked rather than carped.
+
 1999-10-21  Tim Jenness  <timj@jach.hawaii.edu>
 
 	* Tau.pm: Automatically calculate the inverse relationships.

@@ -36,17 +36,8 @@ use GD;
 use constant BYTES_PER_LINE => 85;
 our $VERSION = '0.01';
 
-my $domain = system(`domainname`);
-my $DATA_DIR;
-
-# Find the domain and define DATA_DIR
-if ($domain eq "JAC.jcmt") {
-    $DATA_DIR = "/jcmtdata/raw/wvm/";
-}
-else {
-    $DATA_DIR = "/JACdocs/cgi-bin/wvmdata";
-    #$DATA_DIR = "/jcmtdata/raw/wvm";
-}
+my $domain = `domainname`;
+my $DATA_DIR = "/jcmtdata/raw/wvm/";
 
 our $maxval_on_graph=0.5;                # Upper limit on the graph
 our $mm_water_to_csotau = 18.5;          # Conversion factor between
@@ -273,7 +264,7 @@ sub read_new_data {
     #chdir  $file or die "Couldn't cd to $file";
     my $size = (-s $file);
     open DATAFILE, $file;
-    seek DATAFILE, -BYTES_PER_LINE*2, 2;	# Read backwards 2 lines from EOF
+    seek DATAFILE, -(BYTES_PER_LINE)*2, 2;	# Read backwards 2 lines from EOF
 
     my $floatUTtime;
     while (<DATAFILE>) {
@@ -477,12 +468,15 @@ sub graph {
   # Create plot here
 
   my %graph_info;
-  $graph_info{xstart}=$self->start_time->epoch+$self->start_time->tzoffset;
-  $graph_info{xend}=$self->end_time->epoch+$self->end_time->tzoffset;
 
-  #$graph_info{xstart}=$self->start_time->epoch;
-  #$graph_info{xend}=$self->end_time->epoch;
-
+  if ($domain eq "JAC.Hilo") {
+      $graph_info{xstart}=$self->start_time->epoch+$self->start_time->tzoffset;
+      $graph_info{xend}=$self->end_time->epoch+$self->end_time->tzoffset;
+  }
+  else {
+      $graph_info{xstart}=$self->start_time->epoch;
+      $graph_info{xend}=$self->end_time->epoch;
+  }
   # START THE GRAPH
 
   my %colours;

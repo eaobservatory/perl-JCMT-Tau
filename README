@@ -1,0 +1,41 @@
+This is version (1.01) of the JCMT::Tau perl module
+---------------------------------------------------
+
+INTRODUCTION
+
+The code in this module was originally written for the Integration
+Time Calculator (ITC) - a CGI script which is currently being used
+for estimating the ammount of integration time required to achieve
+a desired S/N ratio with SCUBA at the James Clerk Maxwell Telescope.
+(see http://www.jach.hawaii.edu/jcmt_sw/bin/itc.pl).
+
+The purpose of this module is to store relationships between
+zenith sky opacities at 350, 450, 750 and 850 microns with the
+opacity at 225 GHz as recorded by the Caltech Submillimeter 
+Observatory (http://puuoo.caltech.edu/index.html) - CSO Tau. The
+relationships have been determined by comparing skydips performed
+at the various wavelengths at the JCMT. 
+
+It is hoped that as these opacity relationships are determined with
+greater precision, this module will continue to be used to store them.
+This will be particularly useful in the future at 350 and 750 
+microns, as at present these wavelengths have very little supporting
+skydip data. 
+
+INSTALLATION
+
+This is a fairly simple, self-contained module. All that should be
+required is the following:
+
+	% perl Makefile.PL
+	% make
+	% make test
+	% make install
+
+
+AUTHOR
+
+Edward Chapin (email: echapin@jach.hawaii.edu)
+with help from Tim Jenness (email: timj@jach.hawaii.edu)
+
+March 24, 1998

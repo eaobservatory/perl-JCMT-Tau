@@ -1,0 +1,7 @@
+MANIFEST
+README
+ChangeLog
+Makefile.PL
+Tau.pm
+t/get_tau.t
+t/transmission.t

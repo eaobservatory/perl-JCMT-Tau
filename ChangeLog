@@ -1,0 +1,16 @@
+1998-09-29  Tim Jenness  <timj@jach.hawaii.edu>
+
+	* Tau.pm: Put the 1350 and 2000 micron relationship into the module.
+
+1998-03-24  Ed Chapin  <echapin@ulu>
+
+	* Tau.pm (get_tau): Now use hash %Tau_Relation, which is exported.
+	This reduced a lot of the code, and makes it easier to input new
+	values for the relations in the future. Also makes it easy for the
+	user to determine what relations are being used in the module. 
+	
+
+1998-03-23  Ed Chapin  <echapin@ulu>
+
+	* Tau.pm: Initial Revision
+

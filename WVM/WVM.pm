@@ -31,6 +31,9 @@ use JCMT::Tau::WVM::WVMLib qw/ pwv2tau /;
 use List::Util qw/ min max /;
 use Fcntl qw/ SEEK_SET SEEK_CUR SEEK_END /;
 
+# WVM data are quantized at 4 decimal places
+use Statistics::Descriptive::Discrete;
+
 use DateTime;
 use DateTime::TimeZone;
 
@@ -292,6 +295,27 @@ sub read_data {
   return 0 unless $numfiles;
   return 1;
 }
+
+=item B<stats>
+
+Return statistics of the WVM samples.
+
+  ($mean, $stdev, $median, $mode) = $wvm->stats;
+
+=cut
+
+sub stats {
+  my $self = shift;
+
+  # We know that certain values continue to appear in the data
+  # set
+  my $stats = Statistics::Descriptive::Discrete->new();
+  $stats->add_data( values %{ $self->data } );
+
+  return ( $stats->mean, $stats->standard_deviation,
+	   $stats->median, $stats->mode );
+}
+
 
 =item B<table>
 

@@ -29,6 +29,7 @@ use Carp;
 
 use JCMT::Tau::WVM::WVMLib qw/ pwv2tau /;
 use List::Util qw/ min max /;
+use Fcntl qw/ SEEK_SET SEEK_CUR SEEK_END /;
 
 use DateTime;
 use DateTime::TimeZone;
@@ -246,6 +247,15 @@ sub read_data {
 	$maxhr = 24.0;
       }
 
+      # For cases where we are only asking for a small chunk of the
+      # file, it is much more efficient to seek directly to the relevant
+      # position in the file rather than reading each line
+      # If we read each line the data read for a 15 minute chunk can vary
+      # from 0.05 sec to 0.37 second. We can do much better than that
+      # once we know that the file is linear in time.
+      # Only bother if the minhr is greater than 0
+      _seek_to_start( $DATAFILE, $minhr ) if $minhr > 0;
+
       # loop over each line
       while (<$DATAFILE>) {
 	  $_ =~ s/^\s+//;
@@ -257,6 +267,9 @@ sub read_data {
 
 	  # Convert fractional hour to an epoch
 	  # by adding it to the base
+	  # we could remove the clone step if we simply added the delta
+	  # from each row to the next but that would introduce rounding
+	  # errors by the end of the file
 	  my $time = $dt->clone->add( hours => $string[0] )->hires_epoch;
 
 	  # print "pwv: $string[9] airmass: $string[1]  hr: $string[0] time: $time\n";
@@ -393,53 +406,108 @@ sub _getBaseDT {
 		      );
 }
 
-=item B<_getTime>
+=item B<_seek_to_start>
 
-Get the time in seconds since 1/1/1970. This uses the file
-name to get the day, month, and year. The decimal hours of the day
-is passed as the first arg and the filename is passed as
-the second arg.
+Move the supplied filehandle read position to the correct place in the
+file to begin reading data (or at least close to it) for the correct hour.
 
-    $epochSeconds = _getTime($floatHourOfDay, $fileName);
+  _seek_to_start( $fh, $starthr );
+
+Start hour is the decimal hour in the first column of the file.
 
 =cut
 
-# We need a per-file cache for the root date
-  {
-    # but we do not want to cache every day we have read just the most
-    # recent
-    my $current_dt;
-    my $current_file;
+sub _seek_to_start {
+  my ($fh, $refhr) = @_;
 
-    sub _getTime {
-      my $dechr = shift;
-      my $filestr = shift;
+  # read the first line to get a starting point
+  my $lowhr = _quick_read( $fh );
 
-      my $dt;
-      if (defined $current_file && $current_file eq $filestr) {
-	$dt = $current_dt->clone;
-      } else {
-	
-	$filestr =~ /(\d{4})(\d{2})(\d{2}).wvm$/;
-
-	my $day = $3;
-	my $month = $2;
-	my $year = $1;
-
-	# copy into cache
-	$current_file = $filestr;
-	$current_dt = DateTime->new( year => $year,
-				     month => $month,
-				     day => $day,
-				     time_zone => $utc
-				   );
-	$dt = $current_dt->clone;
-      }
-
-      $dt->add( hours => $dechr );
-      return $dt->epoch;
-    }
+  # reset seek position and return immediately if that line was 
+  # valid
+  if ($lowhr > $refhr) {
+    seek( $fh, 0, SEEK_SET );
+    return;
   }
+
+  # Read a line to get an idea at the line length
+  my $line = <$fh>;
+  my $len = length( $line );
+
+  # now seek to the end - 2 lines
+  seek( $fh, (-2 * $len), SEEK_END);
+  my $highhr = _quick_read( $fh, 1);
+
+  # return immediately (without bothering to reset the seek
+  # if start hour is too new
+  return if $highhr < $refhr;
+
+  # Now we need to iterate to the start position
+  my $lowpos = 0;
+  my $highpos = -s $fh;
+
+  # Number of lines difference between high and low position
+  # that indicates we should stop now
+  my $threshold = 10 * $len;
+
+  # time threshold. Stop if we are within this time period (and below
+  # the reference hour
+  my $tthresh = 0.1; # of an hour
+
+  # Stop if high and low are closer than threshold bytes
+  while ($highpos - $lowpos > $threshold) {
+    # simple average (no gradient)
+    #my $newpos = int (($highpos + $lowpos) / 2 );
+
+    # Use a simple linear fit. This should be better than simply picking
+    # the middle value each time but will only iterate quickly if the
+    # time stream is fairly continuous. If it is chopped into little
+    # clumps this may take a while to converge
+    my $newpos = int ($lowpos + ( $refhr - $lowhr) * ( $highpos - $lowpos)
+                  / ( $highhr - $lowhr));
+
+    # Move to the test position and do a test read
+    seek( $fh, $newpos, SEEK_SET);
+    my $hr = _quick_read( $fh, 1);
+
+    #print "Trying position $newpos and got hr $hr [low=$lowpos hi=$highpos]\n";
+
+    last if $hr == $refhr;
+    if ($hr < $refhr) {
+      # check the timing threshold and abort if we are close
+      last if ($refhr - $hr) < $tthresh;
+      $lowpos = $newpos;
+      $lowhr = $hr;
+    } else {
+      $highpos = $newpos;
+      $highhr = $hr;
+    }
+
+  }
+
+  # at this point $low contains the best guess position
+  # rewind two lines to be safe
+  seek( $fh, (-2 * $len), SEEK_CUR);
+  return;
+}
+
+# reads a line from the file, strips leading space and returns
+# the first column value
+# Args: $fh the filehandle, $flag  0/undef = read once. 1 = read twice
+# the flag allows you to flush the first line after a partial seek
+# returns undef if no line could be read
+sub _quick_read {
+  my $fh = shift;
+  my $flag = shift;
+  my $line = <$fh>;
+  $line = <$fh> if $flag;
+  return undef unless $line;
+
+  # look for first number
+  $line =~ s/^\s+//;
+  return (split /\s+/,$line, 2)[0];
+}
+
 
 
 =item B<_getFiles>

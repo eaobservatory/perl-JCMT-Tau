@@ -8,7 +8,7 @@ JCMT::Tau - Module for dealing with sky opacity related topics.
 
 =head1 SYNOPSIS
 
-use JCMT::Tau;
+ use JCMT::Tau;
 
 =head1 DESCRIPTION
 

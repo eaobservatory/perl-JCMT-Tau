@@ -26,12 +26,11 @@ use 5.006;
 use warnings;
 use strict;
 use Carp;
-use CGI qw(:all);
 
 use JCMT::Tau::WVM::WVMLib qw/ pwv2tau /;
 use List::Util qw/ min max /;
 
-use Time::Piece;
+use Time::Piece qw/ :override /;
 use Time::Seconds;
 use Time::Local;
 
@@ -127,11 +126,11 @@ sub start_time {
   if (@_) {
     my $val = shift;
     if (defined $val) {
-      if (UNIVERSAL::isa($val, "Time::Piece")) {
+      if (UNIVERSAL::can($val, "epoch")) {
 	      $self->{privateStartTime} = $val;
 	      #print "Set start_time to $self->{privateStartTime}->strftime()\n";
       } else {
-	      croak "Must supply start time with a Time::Piece object not '$val'";
+	      croak "Must supply start time with an object that has the 'epoch' method";
       }
     } else {
       $self->{privateStartTime} = undef;
@@ -158,11 +157,11 @@ sub end_time {
   if (@_) {
     my $val = shift;
     if (defined $val) {
-      if (UNIVERSAL::isa($val, "Time::Piece")) {
+      if (UNIVERSAL::can($val, "epoch")) {
 	      $self->{privateEndTime} = $val;
 	      #print "Set end_time to $self->{privateEndTime}->strftime()\n";
       } else {
-	      croak "Must supply end time with a Time::Piece object not '$val'";
+	      croak "Must supply end time with an object that has the 'epoch' method";
       }
     } else {
       $self->{privateEndTime} = undef;
@@ -235,6 +234,40 @@ sub read_data {
 
   return 0 unless $numfiles;
   return 1;
+}
+
+=item B<table>
+
+Returns an array of table rows. Columns are MJD, tau_225, ISO 8601 YMD.
+
+  @rows = $wvm->table;
+
+Two optional arguments can be supplied to control the range of data
+returned.
+
+  @rows = $wvm->table( start => $start, end => $end );
+
+These must be objects with an epoch() method returning epoch seconds.
+In scalar context returns the strings.
+
+=cut
+
+sub table {
+  my $self = shift;
+  my %args = @_;
+
+  my $start = ( exists $args{start} ? $args{start}->epoch : 0 );
+  my $end   = ( exists $args{end} ? $args{end}->epoch : 1e10 );
+
+  my $data = $self->data;
+
+  my @rows = map {
+    my $t = gmtime( $_ );
+    sprintf( "%f\t%f\t%s", $t->mjd, $data->{$_}, $t->datetime );
+  } grep { $_ > $start && $_ < $end } sort keys %$data;
+
+  return (wantarray ? @rows : join ("\n", @rows) );
+
 }
 
 =back
@@ -316,12 +349,18 @@ sub _getFiles {
     my $end   = $self->end_time;
 
     my $date = $start;
+    my $tp = $date->isa('Time::Piece');
     my @files;
     while ($date < $end) {
         my $ymd = $date->strftime('%Y%m%d');
 	my $file = File::Spec->catfile( $self->data_root, $ymd, "$ymd.wvm");
 	push @files, $file if -e $file;
-	$date += ONE_DAY;
+	if ($tp) {
+	  $date += ONE_DAY;
+	} else {
+	  $date->add( days => 1 );
+	}
+
     }
     return @files;
 }

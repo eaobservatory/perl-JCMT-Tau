@@ -35,7 +35,7 @@ use strict;
 use Carp;
 use vars qw($VERSION @ISA @EXPORT %Tau_Relation);
 
-$VERSION = "1.04";
+$VERSION = "1.05";
 
 require Exporter;
 
@@ -117,12 +117,12 @@ where y=450, x=CSO, a=25, b=-.011, and 'CSO:450' is a key for %Tau_Relation
 # The reverse relationships are calculated immediately afterwards
 
 %Tau_Relation = (
-		 'CSO:450N' => [23.51, -0.012],  # narrow band
-		 'CSO:850N' => [ 3.96, -0.004],  # narrow
+		 'CSO:450N' => [23.5,  -0.012],  # narrow band
+		 'CSO:850N' => [ 3.99, -0.004],  # narrow
 		 '850N:450N'=> [ 5.92, -0.032],  # narrow
-		 'CSO:450W' => [28.54, -0.015],  # wideband filters
-		 '850W:450W'=> [ 6.74, -0.053],  # wideband filter
-		 'CSO:850W' => [ 4.17, -0.002],  # wideband filter
+		 'CSO:450W' => [26.2,  -0.014],  # wideband filters
+		 '850W:450W'=> [ 6.52, -0.049],  # wideband filter
+		 'CSO:850W' => [ 4.02, -0.001],  # wideband filter
 		 'CSO:350'  => [28,    -0.012],
 		 '750:350'  => [ 2.6,  -0.004],
 		 'CSO:750'  => [ 9.3,  -0.007],

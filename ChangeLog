@@ -1,3 +1,7 @@
+2000-10-24  Tim Jenness  <timj@jach.hawaii.edu>
+
+	* Tau.pm: Add updated ratios for wideband
+
 2000-07-17  Tim Jenness  <timj@jach.hawaii.edu>
 
 	* t/airmass.t: Use Test module

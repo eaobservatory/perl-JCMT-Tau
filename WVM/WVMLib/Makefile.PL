@@ -5,14 +5,12 @@ use Config;
 # the contents of the Makefile that is written.
 
 my $os = $Config{'osname'};
-
+$os = 'Linux' if $os =~ /linux/i;
 
 print "My os is: $os\n";
 WriteMakefile(
-    'NAME'	=> 'WVM',
+    'NAME'	=> 'JCMT::Tau::WVM',
     'VERSION_FROM' => 'WVM.pm', # finds $VERSION
     'LIBS'	=> ["-L/jac_sw/itsroot/install/wvm/lib/$os -lwvmLib -lm "],   # e.g., '-lm' 
-    'OBJECT' => "WVM.o",   #'OBJECT' => "WvmTau.o",
-    'DEFINE'	=> '',     # e.g., '-DHAVE_SOMETHING' 
     'INC'	=> '-I/jac_sw/itsroot/install/wvm/include',     # e.g., '-I/usr/include/other' 
 );

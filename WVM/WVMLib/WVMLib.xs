@@ -4,7 +4,7 @@
 
 #include "wvmCal.h"
 
-MODULE = WVM		PACKAGE = WVM		
+MODULE = JCMT::Tau::WVM		PACKAGE = JCMT::Tau::WVM		
 
 double
 pwv2tau(airmass, pwv)

@@ -1,4 +1,4 @@
-package WVM;
+package JCMT::Tau::WVM;
 
 =head1 NAME
 
@@ -48,7 +48,7 @@ require AutoLoader;
 );
 $VERSION = '0.01';
 
-bootstrap WVM $VERSION;
+bootstrap JCMT::Tau::WVM $VERSION;
 
 use constant BYTES_PER_LINE => 80;
 
@@ -105,7 +105,7 @@ sub new {
 		   privateStartTime => undef,
 		   privateEndTime  => undef,
 		   privateData     => {},
-		  };
+		  }, $class;
 
   # configure it
   # Go through the input args invoking relevant methods

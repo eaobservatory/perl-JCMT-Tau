@@ -6,6 +6,8 @@ use JCMT::Tau;
 # ================================================================
 #   Test JCMT::Tau::get_tau
 #
+#  These tests have to be changed if the ratios are changed
+#
 # ================================================================
 
 # === 1st Test: GET TAU bad parameters ===
@@ -31,7 +33,7 @@ ok($this, 428.2);
 $this = sprintf("%.1lf",$this);
 
 ok($stat, 0);
-ok($this, '1.0');
+ok($this, '0.9');
 
 
 # === Now invert

@@ -1,3 +1,9 @@
+1999-10-21  Tim Jenness  <timj@jach.hawaii.edu>
+
+	* Tau.pm: Automatically calculate the inverse relationships.
+		Version number now 1.03.
+		(number): Strip spaces before pattern match.
+
 1998-09-29  Tim Jenness  <timj@jach.hawaii.edu>
 
 	* Tau.pm: Put the 1350 and 2000 micron relationship into the module.

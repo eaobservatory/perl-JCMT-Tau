@@ -29,7 +29,7 @@ transmission coefficient at a given airmass and sky opacity.
 use strict;
 use vars qw($VERSION @ISA @EXPORT %Tau_Relation);
 
-$VERSION = "1.02";
+$VERSION = "1.03";
 
 require Exporter;
 
@@ -106,20 +106,45 @@ where y=450, x=CSO, a=25, b=-.011, and 'CSO:450' is a key for %Tau_Relation
 # relation. Each key is of the form x:y where x and y are opacity values in 
 # the relation y = a(x + b), and each element of the hash is an array 
 # containing a and b.
+# The reverse relationships are calculated immediately afterwards
 
 %Tau_Relation = (
 		 'CSO:450' => [25, -.011],
 		 '850:450' => [5.61, -.01],
 		 'CSO:850' => [4.29, -.006],
-		 '450:850' => [.18, .056],
 		 'CSO:350' => [28, -.012],
 		 '750:350' => [2.6, -.004],
 		 'CSO:750' => [9.3, -.007],
-		 '350:750' => [.385, .01],
 		 'CSO:1350'=> [1.4, 0.0 ],
 		 'CSO:1300'=> [1.4, 0.0 ],
 		 'CSO:2000'=> [0.9, 0.0],
+#		 '450:850' => [.18, .056],
+#		 '350:750' => [.385, .01],
 		);
+
+# Generate inverse conversion coefficients
+# Do not want to have to support a table that has entries for
+# both ways
+
+foreach my $key (keys %Tau_Relation) {
+  my ($from, $to) = split(/:/, $key);
+  # Calculate newkey
+  my $newkey = "$to:$from";
+
+  # If the newkey is not present in the list (probably shouldnt be)
+  # calculate and store the coefficients
+  unless (exists $Tau_Relation{$newkey}) {
+
+    # Inversion of the formulae gives:
+    #   a' = 1/a
+    #   b' = -ab
+    my $aprime = 1/ $Tau_Relation{$key}->[0];
+    my $bprime = -1 * $Tau_Relation{$key}->[0] * $Tau_Relation{$key}->[1];
+  
+    $Tau_Relation{$newkey} = [$aprime, $bprime];
+  }
+}
+
 
 # Now the subroutine for calculating values
 
@@ -127,15 +152,18 @@ sub get_tau ($$$) {
 
   my $name = uc($_[1]) . ':' . uc($_[0]);
 
-  # First see if source Tau value is reasonable:
+  # Strip any annoying spaces of the strings
+  $name =~ s/\s//g;
 
-  unless ( number($_[2]) && $_[2]>=0) {
+  # Check to see if arg 3 is defined and is a number
+  # First see if source Tau value is reasonable:
+  unless ( defined $_[2] && number($_[2]) && $_[2]>=0) {
     return (0,-1);
   }
 
   # If good parameters, find the return value of tau
 
-  if ( defined $Tau_Relation{$name} ) {
+  if ( exists $Tau_Relation{$name} ) {
     return $Tau_Relation{$name}[0]*($_[2] + $Tau_Relation{$name}[1]),0;
   }
 
@@ -204,7 +232,10 @@ sub transmission ($$) {
 # Returns true if the parameter given is a valid number
 
 sub number ($) {
-  return $_[0] =~ /^(\d+\.?\d*|\.\d+)$/;
+  my $num = shift;
+  return 0 unless defined $num;
+  $num =~ s/\s//g;  # strip spaces
+  return $num =~ /^(\d+\.?\d*|\.\d+)$/;
 }
 
 #------------------------------------------------------------------------------

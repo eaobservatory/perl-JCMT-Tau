@@ -183,6 +183,8 @@ the start and end time of the query)
 
   ($tmin, $tmax) = $wvm->tbounds;
 
+Values are returned as epoch seconds.
+
 =cut
 
 sub tbounds {

@@ -33,7 +33,7 @@ use Time::Seconds;
 use Time::Local;
 use GD;
 
-use constant BYTES_PER_LINE => 85;
+use constant BYTES_PER_LINE => 80;
 our $VERSION = '0.01';
 
 my $domain = `domainname`;
@@ -269,10 +269,12 @@ sub read_new_data {
     my $floatUTtime;
     while (<DATAFILE>) {
 	$_ =~ s/^\s+//;
+	#print "$_";
 	my @string = split /\s+/, $_;
-	$floatUTtime = $string[1];
+	$floatUTtime = $string[0];
 	my $time = getTime($floatUTtime, $file);
-	$newdata{$time} = Convert($string[10], $string[2]);
+	#print "wvm_old: $string[9] airmass: $string[1]\n";
+	$newdata{$time} = Convert($string[9], $string[1]);
 	$ourLastVal = $newdata{$time};
 	$ourLastTime = $time;
     }
@@ -349,9 +351,11 @@ sub read_data {
       while (<$DATAFILE>) {
 	  $_ =~ s/^\s+//;
 	  my @string = split /\s+/, $_;
-	  my $time = getTime($string[1], $file);
+	  my $time = getTime($string[0], $file);
 
-	  $wvmdata{$time} = Convert($string[10], $string[2]);
+	  #print "wvm_old: $string[9] airmass: $string[1]\n";
+
+	  $wvmdata{$time} = Convert($string[9], $string[1]);
 	  $tempTime = $time;
       }
   }
@@ -469,7 +473,8 @@ sub graph {
 
   my %graph_info;
 
-  if ($domain eq "JAC.jcmt") {
+  chomp $domain;
+  if ("$domain" eq "JAC.jcmt") {
       $graph_info{xstart}=$self->start_time->epoch;
       $graph_info{xend}=$self->end_time->epoch;
   }

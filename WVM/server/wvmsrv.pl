@@ -10,11 +10,11 @@ use 5.006;
 use warnings;
 use strict;
 
-use JCMT::Tau::WVM::Server;
+use JCMT::Tau::WVMServer;
 
 use SOAP::Transport::HTTP;
 
-SOAP::Transport::HTTP::CGI->dispatch_to("JCMT::Tau::WVM::Server")
+SOAP::Transport::HTTP::CGI->dispatch_to("JCMT::Tau::WVMServer")
   ->options({compress_threshold=>500})
   ->handle;
 

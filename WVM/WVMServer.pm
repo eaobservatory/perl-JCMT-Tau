@@ -1,12 +1,12 @@
-package JCMT::Tau::WVM::Server;
+package JCMT::Tau::WVMServer;
 
 =head1 NAME
 
-JCMT::Tau::WVM::Server - WVM archive server class
+JCMT::Tau::WVMServer - WVM archive server class
 
 =head1 SYNOPSIS
 
-  $stats = JCMT::Tau::WVM::Server->stats( $start, $end );
+  $stats = JCMT::Tau::WVMServer->stats( $start, $end );
 
 =head1 DESCRIPTION
 
@@ -23,6 +23,8 @@ use JCMT::Tau::WVM;
 use DateTime;
 use DateTime::Format::ISO8601;
 
+# mandatory SOAP dependency
+use SOAP::Lite;
 
 use vars qw/ $VERSION /;
 
@@ -50,10 +52,17 @@ a perl caller). Members of the array are:
 =cut
 
 sub stats {
+  my $class = shift;
   my ($start, $end) = @_;
 
-  my $stime = DateTime::Format::ISO8601->parse_datetime( $start );
-  my $etime = DateTime::Format::ISO8601->parse_datetime( $end );
+  my ($stime, $etime);
+  eval {
+    $stime = DateTime::Format::ISO8601->parse_datetime( $start );
+    $etime = DateTime::Format::ISO8601->parse_datetime( $end );
+  };
+  if ($@) {
+    die SOAP::Fault->faultstring("error parsing date: $@");
+  }
 
   my $wvm = new JCMT::Tau::WVM( start_time => $stime, end_time => $etime );
 
@@ -63,7 +72,7 @@ sub stats {
     # soap requires ref to array
     return [$stats[0], $stats[1], $stats[2], $nsamp];
   } else {
-    die "No data available between times $start to $end\n";
+    die SOAP::Fault->faultstring("No data available between times $start to $end\n");
   }
 
 }

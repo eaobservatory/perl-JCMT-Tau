@@ -27,6 +27,7 @@ transmission coefficient at a given airmass and sky opacity.
 #------------------------------------------------------------------------------
 
 use strict;
+use Carp;
 use vars qw($VERSION @ISA @EXPORT %Tau_Relation);
 
 $VERSION = "1.03";
@@ -34,7 +35,7 @@ $VERSION = "1.03";
 require Exporter;
 
 @ISA = qw(Exporter);
-@EXPORT = qw(transmission get_tau %Tau_Relation);
+@EXPORT = qw(transmission get_tau airmass %Tau_Relation);
 
 #------------------------------------------------------------------------------
 #                            *** Functions ***
@@ -229,6 +230,51 @@ sub transmission ($$) {
   return (exp( -$tau*$airmass),0);
 }
 
+=head2 AIRMASS CALCULATION
+
+ ($airmass, $status) = airmass($elevation);
+
+Calculate the airmass for a given elevation. This is a simplistic
+calculation and should not be used for low elevations (airmass>2) 
+- use Astro::SLA slaAirmas() for a more accurate calculation.
+
+=head2 Parameters
+
+=over 4
+
+=item 1.
+
+The first parameter is the elevation. Should be given in degrees.
+
+=back
+
+=head2 Return Values
+
+airmass() returns a 2-element array. The first element is the
+airmass for the given elevation. The second is the exit status
+of the function:
+
+  status = 0: successful
+          -1: failed
+
+=cut
+
+sub airmass {
+  carp 'Usage: airmass($elevation)' unless scalar(@_) == 1;
+
+  my $el = shift;
+
+  # Check that it is a number
+  unless (defined $el && number($el) && $el>0) {
+    return (0,-1);
+  }
+
+  # Noddy airmass calculation
+  return (1 / sin( $el * 3.141592654 / 180.0), 0);
+
+}
+
+
 # Returns true if the parameter given is a valid number
 
 sub number ($) {
@@ -271,6 +317,6 @@ The SCUBA skydip system is not yet reliable at these wavelengths.
 =head1 AUTHOR
 
 Module created by Edward Chapin, echapin@jach.hawaii.edu
-(with help from Tim Jenness, timj@jach.hawaii.edu)
+Extended by Tim Jenness, t.jenness@jach.hawaii.edu.
 
 =cut

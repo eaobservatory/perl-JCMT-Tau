@@ -39,7 +39,7 @@ use DateTime::TimeZone;
 
 use vars qw($VERSION);
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 my $utc;
 BEGIN {
@@ -278,9 +278,18 @@ sub read_data {
       _seek_to_start( $DATAFILE, $minhr ) if $minhr > 0;
 
       # loop over each line
+      my $prevhr = 0; # start low. Add 24hr if previous is higher than next
       while (<$DATAFILE>) {
 	  $_ =~ s/^\s+//;
 	  my @string = split /\s+/, $_;
+
+	  # Sometimes the next value is lower than the previous value
+	  # If this happens, we need to add 24 since this indicates the
+	  # file has gone slightly too big. This is problematic
+	  # for the general case since this value should be read from the
+	  # following file
+	  $string[0] += 24 if $string[0] < $prevhr;
+	  $prevhr = $string[0];
 
 	  # Check hour range
 	  next if $string[0] < $minhr;
@@ -465,6 +474,9 @@ Start hour is the decimal hour in the first column of the file.
 sub _seek_to_start {
   my ($fh, $refhr) = @_;
 
+  # Get the filesize
+  my $fsize = -s $fh;
+
   # read the first line to get a starting point
   my $lowhr = _quick_read( $fh );
 
@@ -483,13 +495,22 @@ sub _seek_to_start {
   seek( $fh, (-2 * $len), SEEK_END);
   my $highhr = _quick_read( $fh, 1);
 
+  # if the high value is lower than the low value we have
+  # a file that has been written over at the end with an overflow
+  # UT. This usually only happens when the WVM is running over the UT
+  # boundary and averaging data over that boundary.
+  # Add 24 hrs to the reference if the low is greater than high and
+  # if there are more than two lines in the file (we could be unlucky
+  # and have high > low by a very small amount
+  $highhr += 24 if ($lowhr > $highhr && int($fsize/$len) > 2);
+
   # return immediately (without bothering to reset the seek
-  # if start hour is too new
+  # if start hour is too new)
   return if $highhr < $refhr;
 
   # Now we need to iterate to the start position
   my $lowpos = 0;
-  my $highpos = -s $fh;
+  my $highpos = $fsize;
 
   # Number of lines difference between high and low position
   # that indicates we should stop now

@@ -35,7 +35,7 @@ use strict;
 use Carp;
 use vars qw($VERSION @ISA @EXPORT %Tau_Relation);
 
-$VERSION = "1.03";
+$VERSION = "1.04";
 
 require Exporter;
 
@@ -70,9 +70,11 @@ can be '450','850', '350' or '750'.
 
 =item 2.
 
-The second parameter is a string naming the source Tau value from which the 
-target Tau value will be derived. Must be one of the following:  '450', '850',
-'350', '750', or 'CSO'.
+The second parameter is a string naming the source Tau value from
+which the target Tau value will be derived. Must be one of the
+following: '450W' (wideband filter), '850W', '450N' (narrow filter),
+'850N', '350', '750', '2000', '1350' or 'CSO'. Additionally '1300' is
+allowed as a synonym for '1350', '450' for '450W' and '850' for '850W'.
 
 *NOTE: You cannot use 350 and 750 to derive 450 and 850, and vice versa.
 
@@ -108,25 +110,33 @@ where y=450, x=CSO, a=25, b=-.011, and 'CSO:450' is a key for %Tau_Relation
 
 #------------------------------------------------------------------------------
 
-# First define a hash which contains the current best guesses for each 
-# relation. Each key is of the form x:y where x and y are opacity values in 
-# the relation y = a(x + b), and each element of the hash is an array 
+# First define a hash which contains the current best guesses for each
+# relation. Each key is of the form x:y where x and y are opacity values in
+# the relation y = a(x + b), and each element of the hash is an array
 # containing a and b.
 # The reverse relationships are calculated immediately afterwards
 
 %Tau_Relation = (
-		 'CSO:450' => [25, -.011],
-		 '850:450' => [5.61, -.01],
-		 'CSO:850' => [4.29, -.006],
-		 'CSO:350' => [28, -.012],
-		 '750:350' => [2.6, -.004],
-		 'CSO:750' => [9.3, -.007],
-		 'CSO:1350'=> [1.4, 0.0 ],
-		 'CSO:1300'=> [1.4, 0.0 ],
-		 'CSO:2000'=> [0.9, 0.0],
-#		 '450:850' => [.18, .056],
-#		 '350:750' => [.385, .01],
+		 'CSO:450N' => [23.51, -0.012],  # narrow band
+		 'CSO:850N' => [ 3.96, -0.004],  # narrow
+		 '850N:450N'=> [ 5.92, -0.032],  # narrow
+		 'CSO:450W' => [28.54, -0.015],  # wideband filters
+		 '850W:450W'=> [ 6.74, -0.053],  # wideband filter
+		 'CSO:850W' => [ 4.17, -0.002],  # wideband filter
+		 'CSO:350'  => [28,    -0.012],
+		 '750:350'  => [ 2.6,  -0.004],
+		 'CSO:750'  => [ 9.3,  -0.007],
+		 'CSO:1350' => [ 1.4,   0.0 ],
+		 'CSO:1300' => [ 1.4,   0.0 ],
+		 'CSO:2000' => [ 0.9,   0.0 ],
 		);
+
+# Clone values for 450 and 850 based on the
+# wide band answers for backwards compatibility
+$Tau_Relation{'CSO:450'} = $Tau_Relation{'CSO:450W'};
+$Tau_Relation{'CSO:850'} = $Tau_Relation{'CSO:850W'};
+$Tau_Relation{'850:450'} = $Tau_Relation{'850W:450W'};
+
 
 # Generate inverse conversion coefficients
 # Do not want to have to support a table that has entries for
@@ -146,7 +156,7 @@ foreach my $key (keys %Tau_Relation) {
     #   b' = -ab
     my $aprime = 1/ $Tau_Relation{$key}->[0];
     my $bprime = -1 * $Tau_Relation{$key}->[0] * $Tau_Relation{$key}->[1];
-  
+
     $Tau_Relation{$newkey} = [$aprime, $bprime];
   }
 }
@@ -156,10 +166,18 @@ foreach my $key (keys %Tau_Relation) {
 
 sub get_tau ($$$) {
 
-  my $name = uc($_[1]) . ':' . uc($_[0]);
+  # Read the arguments since we need to uppercase and strip them
+  # before use
+  my $out = uc($_[0]);
+  my $in  = uc($_[1]);
+  $out =~ s/\s//g;
+  $in  =~ s/\s//g;
 
-  # Strip any annoying spaces of the strings
-  $name =~ s/\s//g;
+  # Construct the key name
+  my $name = $in . ':' . $out;
+
+  # If target Tau = source Tau, just return the value that was given
+  return ($_[2],-2) if $out eq $in;
 
   # Check to see if arg 3 is defined and is a number
   # First see if source Tau value is reasonable:
@@ -173,17 +191,11 @@ sub get_tau ($$$) {
     return $Tau_Relation{$name}[0]*($_[2] + $Tau_Relation{$name}[1]),0;
   }
 
-  # If target Tau = source Tau, just return the value that was given
-
-  if ($_[0] eq $_[1]) {
-    return $_[2],-2;
-  }
-
   # If we haven't returned a good value yet, the parameters are bad
   # so return -1 status.
 
   return (0,-1);
-  
+
 }
 
 #------------------------------------------------------------------------------
@@ -296,10 +308,11 @@ sub number ($) {
 
 =head1 NOTES
 
-The empirical relationships are all assumed to be linear. This is valid over
-most useful observing conditions, but it should be noted that 450 Tau as
-returned by get_tau will be invalid for CSO Tau above 0.1 and 850 Tau
-above 0.5, due to extra absorption mechanisms in the atmosphere. 
+The empirical relationships are all assumed to be linear. This is
+valid over most useful observing conditions, but it should be noted
+that 450 Tau as returned by get_tau should be treated with suspicion
+for CSO Tau above 0.1 and 850 Tau above 0.5, due to extra absorption
+mechanisms in the atmosphere.
 
 If possible, 450 Tau should be derived from 850 Tau rather than CSO Tau. The 
 reason is that the relation between 450 Tau and 850 Tau is known with greater

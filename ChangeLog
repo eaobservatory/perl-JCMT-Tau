@@ -1,3 +1,15 @@
+2000-07-17  Tim Jenness  <timj@jach.hawaii.edu>
+
+	* t/airmass.t: Use Test module
+
+	* t/transmission.t: Use Test module
+
+	* t/get_tau.t: Add some extra tests for 450W and use the Test module
+
+2000-03-09  Tim Jenness  <timj@jach.hawaii.edu>
+
+	* Tau.pm: Change ratios at 450/850 for wideband filters
+
 1999-10-22  Tim Jenness  <timj@jach.hawaii.edu>
 
 	* Tau.pm (airmass): Should have croaked rather than carped.

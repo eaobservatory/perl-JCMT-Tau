@@ -64,6 +64,7 @@ our @coefs_m2 = (-0.0073803229, 0.027694585, -0.010215906);
 our @coefs_c = (-0.026203715, 1.1069635, 0.073422855);
 our $ourLastTime = gmtime();
 our $ourLastVal = 0.0;
+our $running = 0;
 
 =head1 METHODS
 
@@ -275,16 +276,26 @@ sub read_new_data {
 	$ourLastTime = $time;
     }
 
-    my $t = gmtime($ourLastTime);
-    my $fileStr = $t->ymd("");
-    my $processedFile = $DATA_DIR . $fileStr . "/" . "calibrated.wvm";
-    #print "My filestr = $processedFile\n";
-    open FILE, ">>$processedFile";
-    print FILE "$floatUTtime   $ourLastVal\n";
-    close FILE;
-
+ #   if ($running) {
+	my $t = gmtime($ourLastTime);
+	my $fileStr = $t->ymd("");
+	my $processedFile = $DATA_DIR . $fileStr . "/" . "calibrated.wvm";
+	#print "My filestr = $processedFile\n";
+	open FILE, ">>$processedFile";
+	print FILE "$floatUTtime   $ourLastVal\n";
+	close FILE;
+  #  }
     #Append this new data
     $self->append_data(\%newdata);
+}
+
+
+=item B<setRunning>
+
+=cut
+
+sub setRunning {
+    $running = shift;
 }
 
 
@@ -394,10 +405,10 @@ sub getFiles {
     my $start = $self->start_time;
     my $end   = $self->end_time;
 
-    my $date;
+    my ($date, $date1);
     my @files;
 
-    for ($date=$start; $date <= $end; $date += ONE_DAY) {
+    for ($date=$start; $date <= $end+ONE_DAY; $date += ONE_DAY) {
 	my $year=$date->year;
 	my $month=$date->mon;
 	if ($month < 10) {
@@ -408,8 +419,8 @@ sub getFiles {
 	if ($day < 10) {
 	    $day="0".$day;
 	}
-	my $file = "$DATA_DIR/$year$month$day/$year$month$day.wvm";
 
+	my $file = "$DATA_DIR/$year$month$day/$year$month$day.wvm";
 	if (-e $file) {
 	    push @files, $file;
 	}

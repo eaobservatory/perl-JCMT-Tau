@@ -268,7 +268,7 @@ sub read_new_data {
 	$floatUTtime = $string[0];
 	my $time = getTime($floatUTtime, $file);
 	#print "wvm_old: $string[8] airmass: $string[1]\n";
-	$newdata{$time} = sprintf("%6.4f", WvmTau::pwv2tau($string[1], $string[8]));
+	$newdata{$time} = sprintf("%6.4f", WvmTau::pwv2tau($string[1], $string[9]));
 	$ourLastVal = $newdata{$time};
 	$ourLastTime = $time;
     }
@@ -350,7 +350,7 @@ sub read_data {
 
 	  #print "wvm_old: $string[9] airmass: $string[1]\n";
 
-	  $wvmdata{$time} = sprintf("%6.4f", WvmTau::pwv2tau($string[1], $string[8]));
+	  $wvmdata{$time} = sprintf("%6.4f", WvmTau::pwv2tau($string[1], $string[9]));
 	  $tempTime = $time;
       }
   }

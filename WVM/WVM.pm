@@ -9,8 +9,8 @@ JCMT::Tau::WVM - Manipulate Water Vapor Monitor data
   use JCMT::Tau::WVM;
   use JCMT::Tau::WVMGDGraph;
 
-  $wvm = new JCMT::Tau::WVM( StartTime => $start,
-                             EndTime   => $end);
+  $wvm = new JCMT::Tau::WVM( Start_Time => $start,
+                             End_Time   => $end);
 
 
   @trange = $wvm->tbounds;

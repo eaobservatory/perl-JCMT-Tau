@@ -5,3 +5,5 @@ Makefile.PL
 Tau.pm
 t/get_tau.t
 t/transmission.t
+CsoFit/Makefile.PL
+CsoFit/CsoFit.pm

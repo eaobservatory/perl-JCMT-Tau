@@ -36,7 +36,7 @@ $VERSION = '0.02';
 
 
 @ISA = qw(Exporter DynaLoader);
-@EXPORT_OK = qw/ pwv2tau tsky2pwv pwv2zen /;
+@EXPORT_OK = qw/ pwv2tau tsky2pwv pwv2zen tsky2tau /;
 
 JCMT::Tau::WVM::WVMLib->bootstrap( $VERSION );
 

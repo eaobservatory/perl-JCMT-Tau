@@ -15,13 +15,13 @@ JCMT::Tau::CsoFit - Process fits to CSO data
  $night = $fit->get( 19990523 );
 
  # Get the tau for a specific time
- $csotau = $night->tau( 19990523.435 );
+ $csotau = $fit->tau( 19990523.435 );
 
  # (over)Write a night of fits
  $fit->put( $night );  # Not yet implemented
 
  # Request expanded fit data spread over 100 points
- ($points, $times ) = $night->expand( 100 );
+ ($points, $times ) = $fit->expand( 100 );
 
 =cut
 
@@ -352,6 +352,8 @@ sub expand {
 Retrieve the fit objects associated with a specific UT date.
 
   @fits = $fit->get( 19990515 );
+
+There can be more than one fit object for a night.
 
 =cut
 

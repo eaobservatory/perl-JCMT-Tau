@@ -10,6 +10,11 @@ JCMT::Tau - Module for dealing with sky opacity related topics.
 
  use JCMT::Tau;
 
+ ($tau450, $status)   = get_tau(450, 'CSO', $csotau);
+ ($trans850, $status) = transmission($airmass, $tau850);
+ ($airmass, $status)  = airmass($elevation);
+
+
 =head1 DESCRIPTION
 
 It is often the case that the zenith sky opacity at 450 or 850 microns is 

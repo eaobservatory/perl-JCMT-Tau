@@ -33,12 +33,22 @@ use Time::Seconds;
 use Time::Local;
 use GD;
 
+use constant BYTES_PER_LINE => 85;
 our $VERSION = '0.01';
 
-# can override
-our $DATA_DIR = "/jcmtdata/raw/wvm/";
-our $maxval_on_graph=0.5;                # Upper limit on the graph
+my $domain = system(`domainname`);
+my $DATA_DIR;
 
+# Find the domain and define DATA_DIR
+if ($domain eq "JAC.jcmt") {
+    $DATA_DIR = "/jcmtdata/raw/wvm/";
+}
+else {
+    $DATA_DIR = "/JACdocs/cgi-bin/wvmdata";
+    #$DATA_DIR = "/jcmtdata/raw/wvm";
+}
+
+our $maxval_on_graph=0.5;                # Upper limit on the graph
 our $mm_water_to_csotau = 18.5;          # Conversion factor between
                                          # mm of water and CSO tau
                                          # equivalent (it's really
@@ -263,7 +273,7 @@ sub read_new_data {
     #chdir  $file or die "Couldn't cd to $file";
     my $size = (-s $file);
     open DATAFILE, $file;
-    seek DATAFILE, -85*2, 2;	# Read backwards 2 lines from EOF
+    seek DATAFILE, -BYTES_PER_LINE*2, 2;	# Read backwards 2 lines from EOF
 
     my $floatUTtime;
     while (<DATAFILE>) {
@@ -276,15 +286,14 @@ sub read_new_data {
 	$ourLastTime = $time;
     }
 
- #   if ($running) {
-	my $t = gmtime($ourLastTime);
-	my $fileStr = $t->ymd("");
-	my $processedFile = $DATA_DIR . $fileStr . "/" . "calibrated.wvm";
-	#print "My filestr = $processedFile\n";
-	open FILE, ">>$processedFile";
-	print FILE "$floatUTtime   $ourLastVal\n";
-	close FILE;
-  #  }
+    my $t = gmtime($ourLastTime);
+    my $fileStr = $t->ymd("");
+    my $processedFile = $DATA_DIR . $fileStr . "/" . "calibrated.wvm";
+    #print "My filestr = $processedFile\n";
+    open FILE, ">>$processedFile";
+    print FILE "$floatUTtime   $ourLastVal\n";
+    close FILE;
+
     #Append this new data
     $self->append_data(\%newdata);
 }
@@ -429,7 +438,6 @@ sub getFiles {
 }
 
 
-
 =item B<graph>
 
 Construct a graph of WVM data. Accepts a filename or a Tk canvas
@@ -469,11 +477,11 @@ sub graph {
   # Create plot here
 
   my %graph_info;
-  #$graph_info{xstart}=$self->start_time->epoch+$self->start_time->tzoffset;
-  #$graph_info{xend}=$self->end_time->epoch+$self->end_time->tzoffset;
+  $graph_info{xstart}=$self->start_time->epoch+$self->start_time->tzoffset;
+  $graph_info{xend}=$self->end_time->epoch+$self->end_time->tzoffset;
 
-  $graph_info{xstart}=$self->start_time->epoch;
-  $graph_info{xend}=$self->end_time->epoch;
+  #$graph_info{xstart}=$self->start_time->epoch;
+  #$graph_info{xend}=$self->end_time->epoch;
 
   # START THE GRAPH
 
@@ -773,7 +781,7 @@ sub Convert {
   # UNCOMMENT THIS LINE TO HAVE NO CORRECTIONS APPLIED  (OTHER THAN /18.5)
 
   if ($wvm_old > 7.747) {
-      return $wvm_old/21;
+      return sprintf("%6.4f",$wvm_old/21);
   }
 
   # APPLY THE AIRMASS CORRECTION (LINEAR MODE)
@@ -803,8 +811,8 @@ sub Convert {
   my $wvm_new = $wvm_temp/$mult;
 
   # RETURN THE CORRECTED AND CONVERTED WVM VALUE
-
-  return $wvm_new;
+  
+  return sprintf("%6.4f",$wvm_new);
 }
 
 =back
@@ -827,4 +835,4 @@ Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 
 =cut
 
-    1;
+1;

@@ -517,6 +517,7 @@ sub _seek_to_start {
 
     #print "Trying position $newpos and got hr $hr [low=$lowpos hi=$highpos]\n";
 
+    last if !defined $hr;
     last if $hr == $refhr;
     if ($hr < $refhr) {
       # check the timing threshold and abort if we are close

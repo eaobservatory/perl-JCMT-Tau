@@ -469,13 +469,13 @@ sub graph {
 
   my %graph_info;
 
-  if ($domain eq "JAC.Hilo") {
-      $graph_info{xstart}=$self->start_time->epoch+$self->start_time->tzoffset;
-      $graph_info{xend}=$self->end_time->epoch+$self->end_time->tzoffset;
-  }
-  else {
+  if ($domain eq "JAC.jcmt") {
       $graph_info{xstart}=$self->start_time->epoch;
       $graph_info{xend}=$self->end_time->epoch;
+  }
+  else {
+      $graph_info{xstart}=$self->start_time->epoch+$self->start_time->tzoffset;
+      $graph_info{xend}=$self->end_time->epoch+$self->end_time->tzoffset;
   }
   # START THE GRAPH
 

@@ -13,8 +13,8 @@ JCMT::Tau::WVM - Manipulate Water Vapor Monitor data
                              EndTime   => $end);
 
 
-  $gif = $wvm->graph();
-
+  @trange = $wvm->tbounds;
+  @stats = $wvm->stats;
 
 =head1 DESCRIPTION
 
@@ -222,6 +222,8 @@ and C<end_time>
   $wvm->read_data();
 
 Returns true if the read worked correctly and false if it failed.
+Returns false if the read worked correctly but there were no data points
+in the specified range.
 
 =cut
 
@@ -304,6 +306,9 @@ sub read_data {
 
       }
   }
+
+  # did we get any data?
+  return 0 unless scalar keys %wvmdata;
 
   # store the data
   $self->data(\%wvmdata);

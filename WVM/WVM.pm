@@ -192,6 +192,20 @@ sub tbounds {
   return ($min, $max);
 }
 
+=item B<nsamples>
+
+Return the number of WVM samples stored within this object.
+
+ my $ns = $wvm->nsamples;
+
+=cut
+
+sub nsamples {
+  my $self = shift;
+  return scalar keys %{ $self->data };
+}
+
+
 =back
 
 =head2 General Methods

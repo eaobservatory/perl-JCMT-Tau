@@ -1,6 +1,6 @@
 #!perl
 use strict;
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 use_ok( 'JCMT::Tau::WVM::WVMLib' );
 
@@ -44,3 +44,8 @@ print "# Zenith tau = ", $tauzen ,"\n";
 
 is( $tauzen, $tauref, "Compare with pre-calculated zenith tau");
 
+# Now do it in one go using the wrapper routine
+my $tauzen2 = sprintf( "%6.4f",
+    JCMT::Tau::WVM::WVMLib::tsky2tau( $airmass, $tamb, $tsky1, $tsky2, $tsky3 ));
+
+is( $tauzen2, $tauzen, "Compare with wrapper function");

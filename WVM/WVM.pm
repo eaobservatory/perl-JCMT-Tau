@@ -30,13 +30,17 @@ use Carp;
 use JCMT::Tau::WVM::WVMLib qw/ pwv2tau /;
 use List::Util qw/ min max /;
 
-use Time::Piece qw/ :override /;
-use Time::Seconds;
-use Time::Local;
+use DateTime;
+use DateTime::TimeZone;
 
 use vars qw($VERSION);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
+
+my $utc;
+BEGIN {
+  $utc = new DateTime::TimeZone( name => 'UTC' );
+}
 
 =head1 METHODS
 
@@ -111,7 +115,7 @@ sub data {
 =item B<start_time>
 
 Retrieve (or set) the start time associated with the WVM data stream
-as a Time::Piece object.
+as a DateTime object.
 
   $time = $wvm->start_time();
   $wvm->start_time( $time );
@@ -126,11 +130,10 @@ sub start_time {
   if (@_) {
     my $val = shift;
     if (defined $val) {
-      if (UNIVERSAL::can($val, "epoch")) {
+      if (UNIVERSAL::isa($val, "DateTime")) {
 	      $self->{privateStartTime} = $val;
-	      #print "Set start_time to $self->{privateStartTime}->strftime()\n";
       } else {
-	      croak "Must supply start time with an object that has the 'epoch' method";
+	      croak "Must supply start time with an 'DateTime' object not '$val'";
       }
     } else {
       $self->{privateStartTime} = undef;
@@ -142,7 +145,7 @@ sub start_time {
 =item B<end_time>
 
 Retrieve (or set) the end time associated with the WVM data stream
-as a Time::Piece object.
+as a DateTime object.
 
   $time = $wvm->end_time();
   $wvm->end_time( $time );
@@ -157,11 +160,10 @@ sub end_time {
   if (@_) {
     my $val = shift;
     if (defined $val) {
-      if (UNIVERSAL::can($val, "epoch")) {
+      if (UNIVERSAL::isa($val, "DateTime")) {
 	      $self->{privateEndTime} = $val;
-	      #print "Set end_time to $self->{privateEndTime}->strftime()\n";
       } else {
-	      croak "Must supply end time with an object that has the 'epoch' method";
+	      croak "Must supply end time with an 'DateTime' object not '$val'";
       }
     } else {
       $self->{privateEndTime} = undef;
@@ -208,24 +210,65 @@ sub read_data {
 
   my $numfiles;
   my %wvmdata;
-  #Get list of files in date range andparse each one
+
+  my $start = $self->start_time;
+  my $end   = $self->end_time;
+
+  #Get list of files in date range and parse each one
+
+  local $/="\n"; # make sure newline is a newline
 
   foreach my $file ($self->_getFiles()) {
       $numfiles++;
       #chdir "$file" or die "Could not cd to $file";
       open my $DATAFILE, "<$file"
 	  or die "Couldn't open $file: $!\n";
-      local $/="\n";
+
+      # Try to minimize the number of DateTime objects we need to create
+      my $dt = _getBaseDT( $file );
+
+      # we need to calculate a min and max hour that we need to extract
+      # from the current file. We do not want to read the whole file
+      # if we are only interested in a subset of the night.
+      my ($minhr, $maxhr);
+      if ($dt->ymd eq $start->ymd) {
+	# should be a method for this in DateTime
+	$minhr = $start->hour + ( $start->minute / 60 ) +
+	         ($start->second / 3600 );
+      } else {
+	$minhr = 0.0;
+      }
+      if ($dt->ymd eq $end->ymd) {
+	$maxhr = $end->hour + ( $end->minute / 60 ) +
+	         ($end->second / 3600 );
+      } else {
+	$maxhr = 24.0;
+      }
+
+      # loop over each line
       while (<$DATAFILE>) {
 	  $_ =~ s/^\s+//;
 	  my @string = split /\s+/, $_;
 
+	  # Check hour range
+	  next if $string[0] < $minhr;
+	  last if $string[0] > $maxhr;
+
 	  # Convert fractional hour to an epoch
-	  my $time = _getTime($string[0], $file);
+	  # by adding it to the base
+	  my $time = $dt->clone->add( hours => $string[0] )->epoch;
 
-	  # print "wvm_old: $string[9] airmass: $string[1]\n";
+	  # print "pwv: $string[9] airmass: $string[1]  hr: $string[0]\n";
+	  my $tau = sprintf("%6.4f", pwv2tau($string[1], $string[9]));
 
-	  $wvmdata{$time} = sprintf("%6.4f", pwv2tau($string[1], $string[9]));
+	  # Note that we do get rounding errors when using a integer
+	  # second epoch. Just average
+	  if (exists $wvmdata{$time}) {
+	    $wvmdata{$time} = ($tau + $wvmdata{$time}) / 2;
+	  } else {
+	    $wvmdata{$time} = $tau;
+	  }
+
       }
   }
 
@@ -250,6 +293,12 @@ returned.
 These must be objects with an epoch() method returning epoch seconds.
 In scalar context returns the strings.
 
+If the 'stdout' option is set to true, the data are sent immediately
+to the default filehandle. This will save some memory if all you want to
+do is print the data. In that case there is no return value.
+
+  $wvm->table( stdout => 1 );
+
 =cut
 
 sub table {
@@ -261,13 +310,25 @@ sub table {
 
   my $data = $self->data;
 
-  my @rows = map {
-    my $t = gmtime( $_ );
-    sprintf( "%f\t%f\t%s", $t->mjd, $data->{$_}, $t->datetime );
-  } grep { $_ > $start && $_ < $end } sort keys %$data;
+  my $fmt = "\%f\t\%f\t\%s";
+  if ($args{stdout}) {
+    # print straight to STDOUT
+    $fmt .= "\n";
+    for my $i (sort keys %$data) {
+      next unless ($i > $start && $i < $end);
 
-  return (wantarray ? @rows : join ("\n", @rows) );
+      # cut and paste. Ouch
+      my $t = DateTime->from_epoch ( epoch => $i, time_zone => $utc );
+      printf( $fmt, $t->mjd, $data->{$i}, $t->datetime );
+    }
+  } else {
+    my @rows = map {
+      my $t = DateTime->from_epoch ( epoch => $_, time_zone => $utc );
+      sprintf( $fmt, $t->mjd, $data->{$_}, $t->datetime );
+    } grep { $_ > $start && $_ < $end } sort keys %$data;
 
+    return (wantarray ? @rows : join ("\n", @rows) );
+  }
 }
 
 =back
@@ -305,31 +366,79 @@ Control the base directory for obtaining data.
 
 =over4
 
+=item B<_getBaseDT>
+
+Derive a base DateTime object from the filename.
+
+  $dt = _getBaseDT( $file );
+
+Assumes file looks like YYYYMMDD.wvm
+
+=cut
+
+sub _getBaseDT {
+  my $file = shift;
+
+  $file =~ /(\d{4})(\d{2})(\d{2}).wvm$/;
+
+  my $day = $3;
+  my $month = $2;
+  my $year = $1;
+
+  return DateTime->new( year => $year,
+			month => $month,
+			day => $day,
+			time_zone => $utc
+		      );
+}
+
 =item B<_getTime>
 
-Get the time in seconds since 1/1/1970. This crudely uses the file
-name to get the day, month, and year. The timestamp of the day in
-seconds is passed as the first arg and the filename is passed as
-the second arg. This works for now but is kind of lame. Should
-replace with Time::Piece object -> epoch.
+Get the time in seconds since 1/1/1970. This uses the file
+name to get the day, month, and year. The decimal hours of the day
+is passed as the first arg and the filename is passed as
+the second arg.
 
     $epochSeconds = _getTime($floatHourOfDay, $fileName);
 
 =cut
 
-sub _getTime {
-    my $rawTime = shift;
-    my $filestr = shift;
+# We need a per-file cache for the root date
+  {
+    # but we do not want to cache every day we have read just the most
+    # recent
+    my $current_dt;
+    my $current_file;
 
-    $filestr =~ /(\d{4})(\d{2})(\d{2}).wvm$/;
+    sub _getTime {
+      my $dechr = shift;
+      my $filestr = shift;
 
-    my $day = $3;
-    my $month = $2;
-    my $year = $1;
+      my $dt;
+      if (defined $current_file && $current_file eq $filestr) {
+	$dt = $current_dt->clone;
+      } else {
+	
+	$filestr =~ /(\d{4})(\d{2})(\d{2}).wvm$/;
 
-    my $secsInDay = int($rawTime * 3600);
-    return $secsInDay + timegm(0, 0, 0, $day, $month-1, $year); #Time in seconds since 1/1/1970
-}
+	my $day = $3;
+	my $month = $2;
+	my $year = $1;
+
+	# copy into cache
+	$current_file = $filestr;
+	$current_dt = DateTime->new( year => $year,
+				     month => $month,
+				     day => $day,
+				     time_zone => $utc
+				   );
+	$dt = $current_dt->clone;
+      }
+
+      $dt->add( hours => $dechr );
+      return $dt->epoch;
+    }
+  }
 
 
 =item B<_getFiles>
@@ -347,20 +456,14 @@ sub _getFiles {
 
     my $start = $self->start_time;
     my $end   = $self->end_time;
+    my $date = $start->clone;
 
-    my $date = $start;
-    my $tp = $date->isa('Time::Piece');
     my @files;
     while ($date < $end) {
         my $ymd = $date->strftime('%Y%m%d');
 	my $file = File::Spec->catfile( $self->data_root, $ymd, "$ymd.wvm");
 	push @files, $file if -e $file;
-	if ($tp) {
-	  $date += ONE_DAY;
-	} else {
-	  $date->add( days => 1 );
-	}
-
+	$date->add( days => 1 );
     }
     return @files;
 }

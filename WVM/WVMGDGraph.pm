@@ -27,7 +27,7 @@ use strict;
 use warnings;
 use Carp;
 
-use Time::Piece qw/ :override /;
+use DateTime;
 use GD::Graph::lines;
 
 our $DEBUG = 0;
@@ -53,21 +53,25 @@ sub graph {
   printf("START: $start\n") if $DEBUG;
   printf("END: $end\n") if $DEBUG;
 
+  # only need to calculate epoch once
+  my $sepoch = $start->epoch;
+  my $eepoch = $end->epoch;
+
   # read the data
   my $wvmdata = $self->data;
 
   my @xvals;
   my @yvals;
 
+  my $utc = new DateTime::TimeZone( name => 'UTC' );
   foreach my $i (sort keys %$wvmdata) {
-      if ($i < $start->epoch || $i > $end->epoch) {
-	  next;
-      } 
-
-      my $t = gmtime($i);
-
+      next unless ($i > $sepoch && $i < $eepoch);
+      # only keep data that are on 10 second boundaries
+      # this only works because we have 1 second samples
       if ( ($i%10 ) == 0) {
-	  push @xvals, sprintf("%s:%s", $t->hour, $t->min);
+	  my $t = DateTime->from_epoch(epoch => $i, time_zone => $utc);
+
+	  push @xvals, $t->strftime('%H:%M');
 	  push @yvals, sprintf("%5.4f",$wvmdata->{$i});
       }
 
@@ -96,7 +100,7 @@ sub graph {
 
 	       ) or die $graph->error;
 
-  my $gd = $graph->plot(\@data_set) or die $graph->error;
+  my $gd = $graph->plot(\@data_set) or croak $graph->error;
   return $gd;
 }
 

@@ -1,4 +1,4 @@
-package JCMT::Tau::WVM;
+package WVM;
 
 =head1 NAME
 
@@ -32,10 +32,25 @@ use Time::Piece;
 use Time::Seconds;
 use Time::Local;
 use GD;
-use WvmTau;
+
+use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
+
+require Exporter;
+require DynaLoader;
+require AutoLoader;
+
+@ISA = qw(Exporter DynaLoader);
+# Items to export into callers namespace by default. Note: do not export
+# names by default without a very good reason. Use EXPORT_OK instead.
+# Do not simply export all your public functions/methods/constants.
+@EXPORT = qw(
+	
+);
+$VERSION = '0.01';
+
+bootstrap WVM $VERSION;
 
 use constant BYTES_PER_LINE => 80;
-our $VERSION = '0.01';
 
 my $domain = `domainname`;
 my $DATA_DIR = "/jcmtdata/raw/wvm/";
@@ -268,7 +283,7 @@ sub read_new_data {
 	$floatUTtime = $string[0];
 	my $time = getTime($floatUTtime, $file);
 	#print "wvm_old: $string[8] airmass: $string[1]\n";
-	$newdata{$time} = sprintf("%6.4f", WvmTau::pwv2tau($string[1], $string[9]));
+	$newdata{$time} = sprintf("%6.4f", WVM::pwv2tau($string[1], $string[9]));
 	$ourLastVal = $newdata{$time};
 	$ourLastTime = $time;
     }
@@ -350,7 +365,7 @@ sub read_data {
 
 	  #print "wvm_old: $string[9] airmass: $string[1]\n";
 
-	  $wvmdata{$time} = sprintf("%6.4f", WvmTau::pwv2tau($string[1], $string[9]));
+	  $wvmdata{$time} = sprintf("%6.4f", WVM::pwv2tau($string[1], $string[9]));
 	  $tempTime = $time;
       }
   }
@@ -771,3 +786,4 @@ Jenness E<lt>t.jenness@jach.hawaii.eduE<gt>.
 =cut
 
 1;
+__END__

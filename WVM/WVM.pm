@@ -773,7 +773,7 @@ sub Convert {
   # UNCOMMENT THIS LINE TO HAVE NO CORRECTIONS APPLIED  (OTHER THAN /18.5)
 
   if ($wvm_old > 7.747) {
-      return $wvm_old/18.5;
+      return $wvm_old/21;
   }
 
   # APPLY THE AIRMASS CORRECTION (LINEAR MODE)

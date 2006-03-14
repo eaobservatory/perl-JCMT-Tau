@@ -3,6 +3,9 @@
 #include "XSUB.h"
 
 #include "wvmCal.h"
+#include "wvmCal.c"
+#include "wvmOpt.c"
+#include "wvmTau.c"
 
 MODULE = JCMT::Tau::WVM::WVMLib	   PACKAGE = JCMT::Tau::WVM::WVMLib
 

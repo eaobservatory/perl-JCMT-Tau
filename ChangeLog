@@ -1,3 +1,15 @@
+2005-03-18  Tim Jenness  <timj@jach.hawaii.edu>
+
+	* Tau.pm: Add placeholder for 200 micron THUMPER
+
+2005-01-03  Tim Jenness  <timj@jach.hawaii.edu>
+
+	* WVM/WVM.pm (read_data): Ignore values at the end of the file
+	that are from the next UT.
+	
+	* WVM/WVM.pm (_seek_to_start): Take into account the possibility
+	that the hour read from the last line could be barely > than 0.0
+
 2001-09-04  Tim Jenness  <timj@jach.hawaii.edu>
 
 	* CsoFit/CsoFit.pm: Fix confusing typos in synopsis

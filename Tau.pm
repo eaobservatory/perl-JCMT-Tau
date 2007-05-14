@@ -35,7 +35,7 @@ use strict;
 use Carp;
 use vars qw($VERSION @ISA @EXPORT %Tau_Relation);
 
-$VERSION = "1.05";
+$VERSION = "1.06";
 
 require Exporter;
 
@@ -129,6 +129,7 @@ where y=450, x=CSO, a=25, b=-.011, and 'CSO:450' is a key for %Tau_Relation
 		 'CSO:1350' => [ 1.4,   0.0 ],
 		 'CSO:1300' => [ 1.4,   0.0 ],
 		 'CSO:2000' => [ 0.9,   0.0 ],
+		 'CSO:200'  => [ 105,   0.0 ],   # Thumper
 		);
 
 # Clone values for 450 and 850 based on the

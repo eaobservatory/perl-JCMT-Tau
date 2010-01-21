@@ -19,5 +19,5 @@ WVM/WVMLib/src/wvmCal.h
 WVM/WVMLib/src/wvmOpt.c
 WVM/WVMLib/src/wvmTau.c
 WVM/WVMLib/src/wvmTau.h
-WVM/WVMLib/t/pvw2tau.t
+WVM/WVMLib/t/pwv2tau.t
 WVM/WVMLib/t/tsky2tau.t

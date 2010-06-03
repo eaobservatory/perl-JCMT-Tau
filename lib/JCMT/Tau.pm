@@ -10,7 +10,7 @@ JCMT::Tau - Module for dealing with sky opacity related topics.
 
  use JCMT::Tau;
 
- ($tau450, $status)   = get_tau(450, 'CSO', $csotau);
+ ($tau450, $status)   = get_tau('450', 'CSO', $csotau);
  ($trans850, $status) = transmission($airmass, $tau850);
  ($airmass, $status)  = airmass($elevation);
 
@@ -35,7 +35,7 @@ use strict;
 use Carp;
 use vars qw($VERSION @ISA @EXPORT %Tau_Relation);
 
-$VERSION = "1.06";
+$VERSION = "1.07";
 
 require Exporter;
 
@@ -138,34 +138,48 @@ $Tau_Relation{'CSO:450'} = $Tau_Relation{'CSO:450W'};
 $Tau_Relation{'CSO:850'} = $Tau_Relation{'CSO:850W'};
 $Tau_Relation{'850:450'} = $Tau_Relation{'850W:450W'};
 
+# And calculate the inverse
+_invert_relations( \%Tau_Relation );
 
-# Generate inverse conversion coefficients
-# Do not want to have to support a table that has entries for
-# both ways
 
-foreach my $key (keys %Tau_Relation) {
-  my ($from, $to) = split(/:/, $key);
-  # Calculate newkey
-  my $newkey = "$to:$from";
+#  _invert_relations( \%Tau_Relation );
 
-  # If the newkey is not present in the list (probably shouldnt be)
-  # calculate and store the coefficients
-  unless (exists $Tau_Relation{$newkey}) {
+sub _invert_relations {
+  # Generate inverse conversion coefficients
+  # Do not want to have to support a table that has entries for
+  # both ways
+  my $TauRef = shift;
 
-    # Inversion of the formulae gives:
-    #   a' = 1/a
-    #   b' = -ab
-    my $aprime = 1/ $Tau_Relation{$key}->[0];
-    my $bprime = -1 * $Tau_Relation{$key}->[0] * $Tau_Relation{$key}->[1];
+  foreach my $key (keys %$TauRef) {
+    my ($from, $to) = split(/:/, $key);
+    # Calculate newkey
+    my $newkey = "$to:$from";
 
-    $Tau_Relation{$newkey} = [$aprime, $bprime];
+    # If the newkey is not present in the list (probably shouldnt be)
+    # calculate and store the coefficients
+    unless (exists $TauRef->{$newkey}) {
+
+      # Inversion of the formulae gives:
+      #   a' = 1/a
+      #   b' = -ab
+      my $aprime = 1/ $TauRef->{$key}->[0];
+      my $bprime = -1 * $TauRef->{$key}->[0] * $TauRef->{$key}->[1];
+
+      $TauRef->{$newkey} = [$aprime, $bprime];
+    }
   }
 }
 
-
 # Now the subroutine for calculating values
+# Two subroutines so that a subclass can pass in its own copy
+# of the tau relations.
 
 sub get_tau ($$$) {
+  get_tau_with_relation(@_[0..3], \%Tau_Relation);
+}
+
+sub get_tau_with_relation {
+  my $tau_ref = $_[4];
 
   # Read the arguments since we need to uppercase and strip them
   # before use
@@ -188,8 +202,8 @@ sub get_tau ($$$) {
 
   # If good parameters, find the return value of tau
 
-  if ( exists $Tau_Relation{$name} ) {
-    return $Tau_Relation{$name}[0]*($_[2] + $Tau_Relation{$name}[1]),0;
+  if ( defined $tau_ref && exists $tau_ref->{$name} ) {
+    return $tau_ref->{$name}[0]*($_[2] + $tau_ref->{$name}[1]),0;
   }
 
   # If we haven't returned a good value yet, the parameters are bad
@@ -305,9 +319,13 @@ sub number ($) {
 #------------------------------------------------------------------------------
 # End of PERL code and documentation footer.
 #------------------------------------------------------------------------------
-1;
 
 =head1 NOTES
+
+JCMT::Tau exports the SCUBA tau relationships and not the SCUBA-2 reltionships.
+Use JCMT::Tau::SCUBA2 for an interface that uses the SCUBA-2 values. This is
+necessary because SCUBA-2 and SCUBA use the same names for the initially
+delivered filter.
 
 The empirical relationships are all assumed to be linear. This is
 valid over most useful observing conditions, but it should be noted
@@ -338,4 +356,26 @@ The SCUBA skydip system is not yet reliable at these wavelengths.
 Module created by Edward Chapin, echapin@jach.hawaii.edu
 Extended by Tim Jenness, t.jenness@jach.hawaii.edu.
 
+Copyright 2010 Science and Technology Facilities Council.
+All Rights Reserved.
+
+=head1 LICENCE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public
+License along with this program; if not, write to the Free
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+MA 02111-1307, USA
+
 =cut
+
+1;

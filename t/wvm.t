@@ -8,7 +8,7 @@ use DateTime;
 use_ok( 'JCMT::Tau::WVM' );
 
 # Set new data root
-JCMT::Tau::WVM->data_root( File::Spec->catdir("t","data") );
+JCMT::Tau::WVM->data_root( File::Spec->catdir("t","wvmdata") );
 
 # This test only works at the JAC
 # start time is 20041108T03:00

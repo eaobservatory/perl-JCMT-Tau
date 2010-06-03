@@ -1,15 +1,26 @@
 #!perl
 use strict;
-use Test::More tests => 6;
+use Test::More;
 use File::Spec;
 use DateTime;
+
+# Need GD::Graph to continue
+BEGIN {
+  my $retval = eval "use GD::Graph; 1;";
+  if (!defined $retval) {
+    plan skip_all => "GD::Graph module not available";
+    exit;
+  } else {
+    plan tests => 6;
+  }
+}
 
 
 use_ok( 'JCMT::Tau::WVM' );
 use_ok( 'JCMT::Tau::WVMGDGraph' );
 
 # Set new data root
-JCMT::Tau::WVM->data_root( File::Spec->catdir("t","data") );
+JCMT::Tau::WVM->data_root( File::Spec->catdir("t","wvmdata") );
 
 # This test only works at the JAC
 # start time is 20041108T03:00

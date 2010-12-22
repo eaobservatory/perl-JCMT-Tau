@@ -30,6 +30,7 @@ require DynaLoader;
 
 use strict;
 use warnings;
+use Carp;
 
 use vars qw/ @ISA @EXPORT_OK $VERSION /;
 $VERSION = '0.02';
@@ -62,10 +63,14 @@ mm of water).
 
  $pwv_z = pwv2zen( $airmass, $pwvlos );
 
+croaks if passed a zero airmass.
+
 =cut
 
 sub pwv2zen {
   my ($airmass, $pwv) = @_;
+  croak "Can not convert line-of-sight pwv of $pwv at airmass $airmass to zenith value"
+    if $airmass < 1.00;
   return ( $pwv / $airmass );
 }
 
@@ -84,10 +89,13 @@ Convert measured sky temperatures to the zenith sky opacity.
 where $tamb is the ambient temperature and C<@tsky> are the 3 measured
 sky temperatures (in kelvin).
 
+If the airmass is zero the sky opacity is zero.
+
 =cut
 
 sub tsky2tau {
   my ($airmass, $tamb, @tsky) = @_;
+  return 0.0 if $airmass < 0.00001;
   my $pwvlos = tsky2pwv( $airmass, $tamb, @tsky );
   my $pwvzen = pwv2zen( $airmass, $pwvlos );
   return pwv2tau( $airmass, $pwvzen );
@@ -97,6 +105,7 @@ sub tsky2tau {
 
 =head1 COPYRIGHT
 
+Copyright (C) 2010 Science and Technology Facilities Council.
 Copyright 2004 (C) Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 

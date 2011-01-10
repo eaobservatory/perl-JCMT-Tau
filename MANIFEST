@@ -1,12 +1,12 @@
 MANIFEST
 README
 ChangeLog
-Makefile.PL
-Tau.xs
+Build.PL
 lib/JCMT/Tau/CsoFit.pm
 lib/JCMT/Tau/SCUBA2.pm
 lib/JCMT/Tau/WVM/WVMGDGraph.pm
 lib/JCMT/Tau/WVM/WVMLib.pm
+lib/JCMT/Tau/WVM/WVMLib.xs
 lib/JCMT/Tau/WVM/WVMServer.pm
 lib/JCMT/Tau/WVM.pm
 lib/JCMT/Tau.pm

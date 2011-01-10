@@ -1,3 +1,7 @@
+2011-01-10  Tim Jenness  <timj@jach.hawaii.edu>
+
+	* Build.PL: Use Module::Build
+
 2005-03-18  Tim Jenness  <timj@jach.hawaii.edu>
 
 	* Tau.pm: Add placeholder for 200 micron THUMPER

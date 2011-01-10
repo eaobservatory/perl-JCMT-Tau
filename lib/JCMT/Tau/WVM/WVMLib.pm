@@ -24,19 +24,20 @@ to convert sky temperatures directly to zenith opacity.
 
 =cut
 
-
-require Exporter;
-require DynaLoader;
-
 use strict;
 use warnings;
 use Carp;
 
+use Exporter 'import';
+use base qw/ DynaLoader /;
+
 use vars qw/ @ISA @EXPORT_OK $VERSION /;
-$VERSION = '0.02';
 
+# Module::Build seems to insist that this version matches
+# the dist version because that is what is used to defined
+# XS_VERSION in the XS C code.
+$VERSION = '1.08';
 
-@ISA = qw(Exporter DynaLoader);
 @EXPORT_OK = qw/ pwv2tau tsky2pwv pwv2zen tsky2tau /;
 
 JCMT::Tau::WVM::WVMLib->bootstrap( $VERSION );
@@ -105,7 +106,7 @@ sub tsky2tau {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Science and Technology Facilities Council.
+Copyright (C) 2010-2011 Science and Technology Facilities Council.
 Copyright 2004 (C) Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 

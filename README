@@ -27,10 +27,10 @@ INSTALLATION
 This is a fairly simple, self-contained module. All that should be
 required is the following:
 
-	% perl Makefile.PL
-	% make
-	% make test
-	% make install
+	% perl Build.PL
+	% ./Build
+	% ./Build test
+	% ./Build install
 
 
 AUTHOR

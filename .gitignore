@@ -1,6 +1,12 @@
+_build
+Build
 Makefile
 Tau.c
 Tau.bs
 Tau.o
 blib
 pm_to_blib
+MYMETA.yml
+lib/JCMT/Tau/WVM/WVMLib.c
+lib/JCMT/Tau/WVM/WVMLib.o
+*.o

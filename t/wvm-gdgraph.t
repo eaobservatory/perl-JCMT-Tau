@@ -17,7 +17,7 @@ BEGIN {
 
 
 use_ok( 'JCMT::Tau::WVM' );
-use_ok( 'JCMT::Tau::WVMGDGraph' );
+use_ok( 'JCMT::Tau::WVM::WVMGDGraph' );
 
 # Set new data root
 JCMT::Tau::WVM->data_root( File::Spec->catdir("t","wvmdata") );

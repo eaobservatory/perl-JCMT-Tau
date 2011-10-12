@@ -1,6 +1,6 @@
 #!perl
 use strict;
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 use_ok( 'JCMT::Tau::WVM::WVMLib' );
 
@@ -49,3 +49,13 @@ my $tauzen2 = sprintf( "%6.4f",
     JCMT::Tau::WVM::WVMLib::tsky2tau( $airmass, $tamb, $tsky1, $tsky2, $tsky3 ));
 
 is( $tauzen2, $tauzen, "Compare with wrapper function");
+
+# Make sure that wvmOpt gives same answer as tsky2pwv
+
+my ($pwvlos_opt, $tau0_opt, $tWat_opt) = JCMT::Tau::WVM::WVMLib::wvmOpt( $airmass,
+                                                                         $tamb,
+                                                                         $tsky1,
+                                                                         $tsky2,
+                                                                         $tsky3);
+is( $pwvlos, $pwvlos_opt, "wvmOpt");
+print "# WVMOPT => $pwvlos_opt, $tau0_opt, $tWat_opt\n";

@@ -38,7 +38,7 @@ use vars qw/ @ISA @EXPORT_OK $VERSION /;
 # XS_VERSION in the XS C code.
 $VERSION = '1.08';
 
-@EXPORT_OK = qw/ pwv2tau tsky2pwv pwv2zen tsky2tau /;
+@EXPORT_OK = qw/ pwv2tau tsky2pwv pwv2zen tsky2tau wvmOpt /;
 
 JCMT::Tau::WVM::WVMLib->bootstrap( $VERSION );
 
@@ -56,6 +56,16 @@ water vapor content (mm of water).
 
 where $tamb is the ambient temperature and C<@tsky> are the 3 measured
 sky temperatures (in kelvin).
+
+=item B<wvmOpt>
+
+Convert measured sky temperatures to the line-of-sight precipitable
+water vapor (mm of water), the broad band line of sight opacity, and the
+effective temperature.
+
+ ($pwvlos, $tau0, $tWat) = wvmOpt( $airmass, $tamb, $tsky );
+
+It will return identical values to tsky2pwv for water vapor content.
 
 =item B<pwv2zen>
 

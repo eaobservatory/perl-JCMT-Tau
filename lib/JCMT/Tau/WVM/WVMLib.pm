@@ -60,8 +60,8 @@ sky temperatures (in kelvin).
 =item B<wvmOpt>
 
 Convert measured sky temperatures to the line-of-sight precipitable
-water vapor (mm of water), the broad band line of sight opacity, and the
-effective temperature.
+water vapor (mm of water), the excess broad band line of sight opacity,
+and the effective temperature.
 
  ($pwvlos, $tau0, $tWat) = wvmOpt( $airmass, $tamb, $tsky );
 

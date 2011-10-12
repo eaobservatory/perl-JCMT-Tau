@@ -1,6 +1,6 @@
 #!perl
 use strict;
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 use_ok( 'JCMT::Tau::WVM::WVMLib' );
 
@@ -59,3 +59,22 @@ my ($pwvlos_opt, $tau0_opt, $tWat_opt) = JCMT::Tau::WVM::WVMLib::wvmOpt( $airmas
                                                                          $tsky3);
 is( $pwvlos, $pwvlos_opt, "wvmOpt");
 print "# WVMOPT => $pwvlos_opt, $tau0_opt, $tWat_opt\n";
+
+# Now try wvmEst
+
+my @results = JCMT::Tau::WVM::WVMLib::wvmEst( $airmass, $pwvlos_opt, $tWat_opt, $tau0_opt);
+
+print "# Chan  TMEAS    TBRI  TTAU    TEFF  AEFF\n";
+my @tskys = ($tsky1, $tsky2, $tsky3);
+for my $i (0..$#{$results[0]}) {
+  printf "# $i   %7.3f %7.3f  %4.2f %7.3f  %4.2f\n",
+    $tskys[$i],
+    $results[0]->[$i],
+      $results[1]->[$i],
+        $results[2]->[$i],
+          $results[3]->[$i];
+}
+
+# Now combo
+my @results2 = JCMT::Tau::WVM::WVMLib::tsky2expected( $airmass, $tamb, @tskys );
+is( $results2[0][0], $results[0][0], "First brightness");

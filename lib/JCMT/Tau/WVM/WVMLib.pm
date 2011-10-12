@@ -38,7 +38,8 @@ use vars qw/ @ISA @EXPORT_OK $VERSION /;
 # XS_VERSION in the XS C code.
 $VERSION = '1.08';
 
-@EXPORT_OK = qw/ pwv2tau tsky2pwv pwv2zen tsky2tau wvmOpt /;
+@EXPORT_OK = qw/ pwv2tau tsky2pwv pwv2zen tsky2tau wvmOpt wvmEst
+                 tsky2expected /;
 
 JCMT::Tau::WVM::WVMLib->bootstrap( $VERSION );
 
@@ -63,9 +64,37 @@ Convert measured sky temperatures to the line-of-sight precipitable
 water vapor (mm of water), the excess broad band line of sight opacity,
 and the effective temperature.
 
- ($pwvlos, $tau0, $tWat) = wvmOpt( $airmass, $tamb, $tsky );
+ ($pwvlos, $tau0, $tWat) = wvmOpt( $airmass, $tamb, @tsky );
 
 It will return identical values to tsky2pwv for water vapor content.
+
+Matches the low-level wvmOpt C function.
+
+=item B<wvmEst>
+
+Convert airmass, pwv line of sight, excess broad band opacity and
+water temperature to expected brightness temperature, total opacity
+and effective temperature for each of the three WVM channels.
+
+ (\@tbri, \@ttau, \@teff, \@aeff) = wvmEst( $airmass, $pwvlos,
+                                            $tWat, $tau0 );
+
+Matches the low-level wvmEst C function.
+
+=item tsky2expected
+
+Combines wvmOpt and wvmEst to return the expected state from the
+measured values.
+
+ (\@tbri, \@ttau, \@teff, \@aeff) = tsky2expected( $airmass, $tamb,
+                                                   @tsky );
+
+=cut
+
+sub tsky2expected {
+  my ($pwv, $tau0, $tWat) = wvmOpt( @_ );
+  return wvmEst( $_[0], $pwv, $tWat, $tau0 );
+}
 
 =item B<pwv2zen>
 

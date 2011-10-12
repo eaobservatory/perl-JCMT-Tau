@@ -4,6 +4,8 @@
 
 #include "wvmCal.h"
 
+#include "arrays.h"
+
 MODULE = JCMT::Tau::WVM::WVMLib	   PACKAGE = JCMT::Tau::WVM::WVMLib
 
 double
@@ -59,4 +61,40 @@ wvmOpt( airmass, tamb, tsky1, tsky2, tsky3 )
   PUSHs(sv_2mortal(newSVnv( (double)waterDens)));
   PUSHs(sv_2mortal(newSVnv( (double)tau0)));
   PUSHs(sv_2mortal(newSVnv( (double)tWat)));
+
+void
+wvmEst( airmass, pwvlos, twat, tau0 )
+  float airmass
+  float pwvlos
+  float twat
+  float tau0
+ PREINIT:
+  float TBRI[3];
+  float TTAU[3];
+  float TEFF[3];
+  float AEFF[3];
+  AV * pTBRI;
+  AV * pTTAU;
+  AV * pTEFF;
+  AV * pAEFF;
+ PPCODE:
+  wvmEst( airmass, pwvlos, twat, tau0,
+          TBRI, TTAU, TEFF, AEFF );
+
+
+  pTBRI = newAV();
+  unpack1D( newRV_noinc((SV*)pTBRI), TBRI, 'f', 3 );
+  XPUSHs( newRV_noinc((SV*)pTBRI));
+
+  pTTAU = newAV();
+  unpack1D( newRV_noinc((SV*)pTTAU), TTAU, 'f', 3 );
+  XPUSHs( newRV_noinc((SV*)pTTAU));
+
+  pTEFF = newAV();
+  unpack1D( newRV_noinc((SV*)pTEFF), TEFF, 'f', 3 );
+  XPUSHs( newRV_noinc((SV*)pTEFF));
+
+  pAEFF = newAV();
+  unpack1D( newRV_noinc((SV*)pAEFF), AEFF, 'f', 3 );
+  XPUSHs( newRV_noinc((SV*)pAEFF));
 

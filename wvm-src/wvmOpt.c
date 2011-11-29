@@ -99,7 +99,7 @@ static void atmEst_f ( double * p, double *x, int m, int n, void *data )
 /*+		       w v m O p t 2
 
  *  Function name:
-      wvmOpt2
+      wvmOpt
 
  *  Function:
       Calculate the best fitting water vapour content, broadband opacity
@@ -115,7 +115,7 @@ static void atmEst_f ( double * p, double *x, int m, int n, void *data )
 
  *  Call:
  
-      wvmOpt2(float aMass, float tAmb, const float tSky[], float * waterDens, 
+      wvmOpt(float aMass, float tAmb, const float tSky[], float * waterDens, 
              float * tau0, float * tWat);
 
  *  Parameters:

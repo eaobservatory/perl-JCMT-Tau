@@ -12,11 +12,13 @@ double pwv2tau(double airMass, double mmH2O_a);
 double tau2pwv(double tau);
 void wvmCal(int cycleCnt,float * data,float eta,
 	      float tAmb, float * tSky,float * tSys, FILE *rawFP);
-void wvmOpt(float airMass,float tAmb,float * tSky,
-	      float * wa,float * tOff, float * tWat);
-float aFunction(float *p, float airMass, float *tSky);
-void wvmEst(float airMass, float WA, float TWAT, float TAUO,
-	      float *TBRI, float *TTAU, float *TEFF, float *AEFF);
+void wvmOpt(float airMass,float tAmb, const float tSky[],
+             float * wa,float * tOff, float * tWat, float * rms);
+void wvmOptMulti(size_t n, const float aMass[], const float tAmb[], const float tSky[],
+             float * waterDens, float * tau0, float * tWater,
+             float * waterDensErr, float * tau0Err, float *tWaterErr, float *rms );
+void wvmEst(double airMass, double WA, double TWAT, double TAUO,
+	      double *TBRI, double *TTAU, double *TEFF, double *AEFF);
 
 /* Given the following wiring:
 

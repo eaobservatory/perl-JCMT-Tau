@@ -17,9 +17,9 @@ my $tsky2   = 171.6; # 4
 my $tsky3   = 93.4;  # 5
 
 # Test results
-my $pwvlosref = 4.02;     # 8
-my $pwvzenref = 3.02;     # 9
-my $tauref    = '0.1470'; # 10
+my $pwvlosref = 4.07;     # 8
+my $pwvzenref = 3.06;     # 9
+my $tauref    = '0.1488'; # 10
 
 # Calculate the line of sight parameters
 my $pwvlos  = JCMT::Tau::WVM::WVMLib::tsky2pwv( $airmass,

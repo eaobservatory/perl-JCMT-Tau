@@ -12,6 +12,31 @@
 
  History: 
    $Log: wvmOpt.c,v $
+   Revision 1.6  2011/12/02 01:33:09  timj
+   Fix multi-measurement fit
+
+   The multi-measurement fit should have been minimizing pwvzen rather than
+   pwvlos. wvmOpt still returns line-of-sight PWV.
+
+   Revision 1.5  2011/11/30 00:02:49  timj
+   wvmOpt now returns the RMS of the fit
+
+   Revision 1.4  2011/11/29 23:57:39  timj
+   Use new levmar minimization routine
+
+   The old minimization algorithm rarely found the best parameters. We now
+   use a Levenberg-Marquardt algorithm. The levmar code has been cut down
+   from a distribution at http://www.ics.forth.gr/~lourakis/levmar/ (v2.6)
+   to minimize the source code to carry around. We do not use the LAPACK
+   version to remove external library dependencies.
+
+   A routine wvmOptMulti has been added to allow multiple measurments
+   to be minimized in one go. This allows for an error to be calculated.
+
+   aFunction has been removed from wvmOpt.
+
+   wvmOpt now uses const in its API and wvmEst uses double precision.
+
    Revision 1.3  2006/07/14 18:50:32  rkackley
    Corrected format specifier and added val to list of quantities printed because it looked like val was intended to be printed bu was not in the argument list
 
@@ -99,7 +124,7 @@ static void atmEst_f ( double * p, double *x, int m, int n, void *data )
 }
 
 /********************************************************************/
-/*+		       w v m O p t 2
+/*+		       w v m O p t
 
  *  Function name:
       wvmOpt

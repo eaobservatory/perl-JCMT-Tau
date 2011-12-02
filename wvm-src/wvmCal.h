@@ -1,3 +1,6 @@
+#ifndef _WVMCAL_INCLUDE_
+#define _WVMCAL_INCLUDE_ 1
+
 /*
  *				wvmCal.h
  *	This include file is used for both wvmCal.c and wvmOpt.c
@@ -18,7 +21,22 @@ void wvmOptMulti(size_t n, const float aMass[], const float tAmb[], const float 
              float * waterDens, float * tau0, float * tWater,
              float * waterDensErr, float * tau0Err, float *tWaterErr, float *rms );
 void wvmEst(double airMass, double WA, double TWAT, double TAUO,
-	      double *TBRI, double *TTAU, double *TEFF, double *AEFF);
+              double *TBRI, double *TTAU, double *TEFF, double *AEFF);
+void wvmReadConstants(int *);
+
+/* The offsets into VFC RF Channels themselves */
+
+int skyOff1Rf;
+int skyOff2Rf;
+int hotOffRf;
+int warmOffRf;
+
+/* The ofsets into the temperature VFC channel only */ 
+
+int skyOff1T;
+int skyOff2T;
+int hotOffT;
+int warmOffT;
 
 /* Given the following wiring:
 
@@ -67,14 +85,53 @@ easier to change back.  So they would be, if VFC3 was working:
 #define VFC_7800_MHZ  8
 #define VFC_TEMP     12
 
-But now they are: */
+But now For the original WVM head they should be:
 
 #define VFC_1200_MHZ  0
 #define VFC_4200_MHZ  4
 #define VFC_7800_MHZ 12
 #define VFC_TEMP      8
 
-#define SKY_OFF1      0
-#define SKY_OFF2      1
-#define HOT_OFF       2
-#define WARM_OFF      3
+But the SMA head is wired like the original was delivered to us:
+
+#define VFC_1200_MHZ  0
+#define VFC_4200_MHZ  4
+#define VFC_7800_MHZ  8
+#define VFC_TEMP     12
+
+*/
+
+int vfc_1200_mhz;
+int vfc_4200_mhz;
+int vfc_7800_mhz;
+int vfc_temp;
+
+/* The following needs to contain on of these two strings: ORIGINAL or SMA */
+char headName[10];
+
+/* These are the cals from count to degrees C for the hot and warm loads 
+   unused if the load temperatures are fixed */
+
+float hotBias;
+float warmBias;
+float hotSlope;
+float warmSlope;
+
+
+  /* brightAdjTHot and brightAdjTWarm are the adjustments to get the effective 
+     temperatures (brightness temperature) of the calibration loads from their
+     measured temperatures. This effect is about -4.4 degrees.  Thus a hot 
+     load at 100 C is about 368.75 K effective 
+
+     These will likely vary between the two heads */
+
+float brightAdjTHot[3];
+float brightAdjTWarm[3];
+
+int fixedLoadTemperatures;   /* True if we are using fixed load temperatures */
+float fixedHotLoadTemp;      /* If using fixed load temperatures, the hot load temperature in C */
+float fixedWarmLoadTemp;     /* If using fixed load temperatures, the warm load temperature in C */
+
+
+
+#endif

@@ -39,7 +39,7 @@ use vars qw/ @ISA @EXPORT_OK $VERSION /;
 $VERSION = '1.09';
 
 @EXPORT_OK = qw/ pwv2tau tsky2pwv pwv2zen tsky2tau wvmOpt wvmEst
-                 tsky2expected /;
+                 tsky2expected wvmOptMulti /;
 
 JCMT::Tau::WVM::WVMLib->bootstrap( $VERSION );
 

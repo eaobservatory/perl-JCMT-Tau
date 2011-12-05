@@ -13,6 +13,10 @@ pwv2tau(airmass, pwv)
   double airmass
   double pwv
 
+double
+tau2pwv(tau)
+  double tau
+
 
 void
 tsky2pwv( airmass, tamb, tsky1, tsky2, tsky3 )

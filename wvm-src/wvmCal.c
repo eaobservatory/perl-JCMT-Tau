@@ -9,6 +9,12 @@
 
  History: 
    $Log: wvmCal.c,v $
+   Revision 1.9  2011/12/02 21:52:36  timj
+   The variables in wvmCal.h should be marked extern in routines other than wvmCal.c
+
+   On some operating systems you can not declare a global variable in two
+   files. One of them must be marked extern.
+
    Revision 1.8  2010/11/23 01:53:19  cwalther
    These now have the ability for different ordering in the temperature and the RF data
 
@@ -47,6 +53,7 @@
 #include <errno.h>
 
 /* WVM includes */
+#define WVMCAL_INTERNAL 1
 #include "wvmCal.h"
 
 /********************************************************************/

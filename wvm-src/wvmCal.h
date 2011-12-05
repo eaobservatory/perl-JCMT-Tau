@@ -24,19 +24,30 @@ void wvmEst(double airMass, double WA, double TWAT, double TAUO,
               double *TBRI, double *TTAU, double *TEFF, double *AEFF);
 void wvmReadConstants(int *);
 
+
+/* These variables must be declared extern in code other than
+   wcmCal.c. These constants should probably not be in the same
+   include file as the general WVM prototypes defined above. */
+
+#if WVMCAL_INTERNAL
+# define EXTERN
+#else
+# define EXTERN extern
+#endif
+
 /* The offsets into VFC RF Channels themselves */
 
-int skyOff1Rf;
-int skyOff2Rf;
-int hotOffRf;
-int warmOffRf;
+EXTERN int skyOff1Rf;
+EXTERN int skyOff2Rf;
+EXTERN int hotOffRf;
+EXTERN int warmOffRf;
 
 /* The ofsets into the temperature VFC channel only */ 
 
-int skyOff1T;
-int skyOff2T;
-int hotOffT;
-int warmOffT;
+EXTERN int skyOff1T;
+EXTERN int skyOff2T;
+EXTERN int hotOffT;
+EXTERN int warmOffT;
 
 /* Given the following wiring:
 
@@ -101,21 +112,21 @@ But the SMA head is wired like the original was delivered to us:
 
 */
 
-int vfc_1200_mhz;
-int vfc_4200_mhz;
-int vfc_7800_mhz;
-int vfc_temp;
+EXTERN int vfc_1200_mhz;
+EXTERN int vfc_4200_mhz;
+EXTERN int vfc_7800_mhz;
+EXTERN int vfc_temp;
 
 /* The following needs to contain on of these two strings: ORIGINAL or SMA */
-char headName[10];
+EXTERN char headName[10];
 
 /* These are the cals from count to degrees C for the hot and warm loads 
    unused if the load temperatures are fixed */
 
-float hotBias;
-float warmBias;
-float hotSlope;
-float warmSlope;
+EXTERN float hotBias;
+EXTERN float warmBias;
+EXTERN float hotSlope;
+EXTERN float warmSlope;
 
 
   /* brightAdjTHot and brightAdjTWarm are the adjustments to get the effective 
@@ -125,12 +136,12 @@ float warmSlope;
 
      These will likely vary between the two heads */
 
-float brightAdjTHot[3];
-float brightAdjTWarm[3];
+EXTERN float brightAdjTHot[3];
+EXTERN float brightAdjTWarm[3];
 
-int fixedLoadTemperatures;   /* True if we are using fixed load temperatures */
-float fixedHotLoadTemp;      /* If using fixed load temperatures, the hot load temperature in C */
-float fixedWarmLoadTemp;     /* If using fixed load temperatures, the warm load temperature in C */
+EXTERN int fixedLoadTemperatures;   /* True if we are using fixed load temperatures */
+EXTERN float fixedHotLoadTemp;      /* If using fixed load temperatures, the hot load temperature in C */
+EXTERN float fixedWarmLoadTemp;     /* If using fixed load temperatures, the warm load temperature in C */
 
 
 

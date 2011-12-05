@@ -27,7 +27,7 @@ is( $max, 1099885286, 'latest time');
 # stats
 my @stats = $wvm->stats;
 print "# Mean: $stats[0] +/- $stats[1] Median: $stats[2]\n";
-is( $stats[2], 0.1526, "Median" );
+is( $stats[2], 0.142, "Median" );
 
 my @rows = $wvm->table;
 

@@ -116,9 +116,9 @@ sub pwv2zen {
 
 =item B<pwv2tau>
 
-Convert precipitable water vapor to 225GHZ tau.
+Convert zenith precipitable water vapor to 225GHZ tau.
 
-  $tau = pwv2tau( $airmass, $pwv_z );
+  $tau = pwv2tau( $pwv_z );
 
 =item B<tsky2tau>
 
@@ -138,7 +138,7 @@ sub tsky2tau {
   return 0.0 if $airmass < 0.00001;
   my $pwvlos = tsky2pwv( $airmass, $tamb, @tsky );
   my $pwvzen = pwv2zen( $airmass, $pwvlos );
-  return pwv2tau( $airmass, $pwvzen );
+  return pwv2tau( $pwvzen );
 }
 
 =back

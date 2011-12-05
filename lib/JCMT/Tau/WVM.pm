@@ -303,7 +303,7 @@ sub read_data {
 	  my $time = $dt->clone->add( hours => $string[0] )->hires_epoch;
 
 	  # print "pwv: $string[9] airmass: $string[1]  hr: $string[0] time: $time\n";
-	  my $tau = sprintf("%6.4f", pwv2tau($string[1], $string[9]));
+	  my $tau = sprintf("%6.4f", pwv2tau($string[9]));
 
 	  # Note that we do get rounding errors when using a integer
 	  # second epoch. Just average

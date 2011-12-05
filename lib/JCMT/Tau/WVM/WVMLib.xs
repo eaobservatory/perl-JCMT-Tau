@@ -9,8 +9,7 @@
 MODULE = JCMT::Tau::WVM::WVMLib	   PACKAGE = JCMT::Tau::WVM::WVMLib
 
 double
-pwv2tau(airmass, pwv)
-  double airmass
+pwv2tau(pwv)
   double pwv
 
 double

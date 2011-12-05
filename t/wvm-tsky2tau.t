@@ -19,7 +19,7 @@ my $tsky3   = 93.4;  # 5
 # Test results
 my $pwvlosref = 4.07;     # 8
 my $pwvzenref = 3.06;     # 9
-my $tauref    = '0.1488'; # 10
+my $tauref    = '0.1390'; # 10
 
 # Calculate the line of sight parameters
 my $pwvlos  = JCMT::Tau::WVM::WVMLib::tsky2pwv( $airmass,
@@ -38,7 +38,7 @@ is( sprintf("%4.2f", $pwvzen), $pwvzenref, "Compare zenith pwv");
 
 
 my $tauzen = sprintf( "%6.4f",
-		      JCMT::Tau::WVM::WVMLib::pwv2tau( $airmass, $pwvzen));
+		      JCMT::Tau::WVM::WVMLib::pwv2tau( $pwvzen));
 
 print "# Zenith tau = ", $tauzen ,"\n";
 

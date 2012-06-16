@@ -16,7 +16,7 @@ my $build = Module::Build->new
    dist_version => '1.10',
    meta_merge => {
                resources =>  {
-                              repository => "/jac_sw/gitroot/perl-JCMT-Tau.git",
+                              repository => "ssh://starlink.jach.hawaii.edu/jac_sw/gitroot/perl-JCMT-Tau.git",
                              },
                 },
    requires => {

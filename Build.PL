@@ -23,7 +23,7 @@ my $build = Module::Build->new
                 "DateTime" => 0,
                 "DateTime::TimeZone" => 0,
                 "DateTime::Format::ISO8601" => 0,
-                "Statistics::Descriptive" => 0,
+                "Statistics::Descriptive::Discrete" => 0,
                },
    recommends => {
                   "SOAP::Lite" => 0,

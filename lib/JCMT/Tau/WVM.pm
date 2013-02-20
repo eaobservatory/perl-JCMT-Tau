@@ -247,6 +247,13 @@ sub read_data {
       open my $DATAFILE, "<$file"
 	  or die "Couldn't open $file: $!\n";
 
+      # determine file format:
+      # old: decimal number of hours
+      # new: formatted time and date
+      my $firstline = <$DATAFILE>;
+      seek($DATAFILE, 0, SEEK_SET);
+      my $newformat = $firstline =~ /^[-0-9]{10}T[:0-9]{8} /;
+
       # Try to minimize the number of DateTime objects we need to create
       my $dt = _getBaseDT( $file );
 
@@ -275,32 +282,50 @@ sub read_data {
       # from 0.05 sec to 0.37 second. We can do much better than that
       # once we know that the file is linear in time.
       # Only bother if the minhr is greater than 0
-      _seek_to_start( $DATAFILE, $minhr ) if $minhr > 0;
+      if (! $newformat) {
+        _seek_to_start( $DATAFILE, $minhr ) if $minhr > 0;
+      }
 
       # loop over each line
       my $prevhr = 0; # start low. Add 24hr if previous is higher than next
       while (<$DATAFILE>) {
 	  $_ =~ s/^\s+//;
 	  my @string = split /\s+/, $_;
+          my ($hour, $linedt);
+          if ($newformat) {
+            $linedt = DateTime::Format::ISO8601->parse_datetime($string[0]);
+            $hour = $linedt->hour + ($linedt->minute / 60)
+                                  + ($linedt->second / 3600);
+          }
+          else {
+            $hour = $string[0];
+          }
 
 	  # Sometimes the next value is lower than the previous value
 	  # If this happens, we need to add 24 since this indicates the
 	  # file has gone slightly too big. This is problematic
 	  # for the general case since this value should be read from the
 	  # following file
-	  $string[0] += 24 if $string[0] < $prevhr;
-	  $prevhr = $string[0];
+	  $hour += 24 if $hour < $prevhr;
+	  $prevhr = $hour;
 
 	  # Check hour range
-	  next if $string[0] < $minhr;
-	  last if $string[0] > $maxhr;
+	  next if $hour < $minhr;
+	  last if $hour > $maxhr;
 
 	  # Convert fractional hour to an epoch
 	  # by adding it to the base
 	  # we could remove the clone step if we simply added the delta
 	  # from each row to the next but that would introduce rounding
 	  # errors by the end of the file
-	  my $time = $dt->clone->add( hours => $string[0] )->hires_epoch;
+          my $time;
+          if ($newformat) {
+            # In this format we already have the datetime object.
+            $time = $linedt->hires_epoch();
+          }
+          else {
+            $time = $dt->clone->add( hours => $hour )->hires_epoch;
+          }
 
 	  # print "pwv: $string[9] airmass: $string[1]  hr: $string[0] time: $time\n";
 	  my $tau = sprintf("%6.4f", pwv2tau($string[9]));

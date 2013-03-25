@@ -34,7 +34,7 @@ ok($this, 428.2);
 $this = sprintf("%.1lf",$this);
 
 ok($stat, 0);
-ok($this, '0.6');
+ok($this, '1.0');
 
 
 # === Now invert

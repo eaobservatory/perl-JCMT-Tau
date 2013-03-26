@@ -27,7 +27,7 @@ use warnings;
 use strict;
 use Carp;
 
-use JCMT::Tau::WVM::WVMLib qw/ pwv2tau /;
+use JCMT::Tau::WVM::WVMLib qw/ pwv2tau_bydate /;
 use List::Util qw/ min max /;
 use Fcntl qw/ SEEK_SET SEEK_CUR SEEK_END /;
 
@@ -319,16 +319,22 @@ sub read_data {
 	  # from each row to the next but that would introduce rounding
 	  # errors by the end of the file
           my $time;
+
+          # We also need the MJD although really we only need this to a day accuracy
+          # so it could probably be cached.
+          my $mjd;
           if ($newformat) {
             # In this format we already have the datetime object.
             $time = $linedt->hires_epoch();
+            $mjd = $linedt->mjd();
           }
           else {
-            $time = $dt->clone->add( hours => $hour )->hires_epoch;
+            my $dtdelta = $dt->clone->add( hours => $hour );
+            $time = $dtdelta->hires_epoch;
+            $mjd = $dtdelta->mjd;
           }
-
-	  # print "pwv: $string[9] airmass: $string[1]  hr: $string[0] time: $time\n";
-	  my $tau = sprintf("%6.4f", pwv2tau($string[9]));
+	  # print "pwv: $string[9] airmass: $string[1]  hr: $string[0] time: $time [$mjd]\n";
+	  my $tau = sprintf("%6.4f", pwv2tau_bydate($mjd, $string[9]));
 
 	  # Note that we do get rounding errors when using a integer
 	  # second epoch. Just average

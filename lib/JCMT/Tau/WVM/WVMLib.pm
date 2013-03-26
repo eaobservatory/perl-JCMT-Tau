@@ -16,6 +16,8 @@ JCMT::Tau::WVM::WVMLib - Interface to the WVM C library
 
   $tau = pwv2tau( $airmass, $pwv );
 
+  $tau = pwv2tau_bydate( $mjdate, $airmass, $pwv );
+
 =head1 DESCRIPTION
 
 Perl interface to the C WVM library and a simple wrapper function
@@ -39,7 +41,8 @@ use vars qw/ @ISA @EXPORT_OK $VERSION /;
 $VERSION = '1.10';
 
 @EXPORT_OK = qw/ pwv2tau tsky2pwv pwv2zen tsky2tau wvmOpt wvmEst
-                 tsky2expected wvmOptMulti /;
+                 tsky2expected wvmOptMulti
+                 pwv2tau_bydate tsky2pwv_bydate /;
 
 JCMT::Tau::WVM::WVMLib->bootstrap( $VERSION );
 
@@ -116,9 +119,19 @@ sub pwv2zen {
 
 =item B<pwv2tau>
 
-Convert zenith precipitable water vapor to 225GHZ tau.
+Convert zenith precipitable water vapor to 225GHZ tau. This uses
+the current conversion factor.
 
   $tau = pwv2tau( $pwv_z );
+
+=item B<pwv2tau_bydate>
+
+Convert zenith precipitable water vapor to 225 GHz tau using the
+appropriate conversion formulae based on the date of observation.
+
+  $tau = pw2vtau_bydate( $mjd, $pwv_z );
+
+where $mjd is the modified Julian date.
 
 =item B<tsky2tau>
 
@@ -134,18 +147,36 @@ If the airmass is zero the sky opacity is zero.
 =cut
 
 sub tsky2tau {
-  my ($airmass, $tamb, @tsky) = @_;
+  # Call the bydate routine with an unreasonably large date for current value
+  return tsky2tau_bydate( 1_000_000.0, @_ );
+}
+
+=item B<tsky2tau_bydate>
+
+Convert measured sky temperatures to the zenith sky opacity for a given date
+
+  $tauzen = tsky2tau( $mjd, $airmass, $tamb, @tsky );
+
+where $mjd is the modified Julian date, $tamb is the ambient temperature
+and C<@tsky> are the 3 measured sky temperatures (in kelvin).
+
+If the airmass is zero the sky opacity is zero.
+
+=cut
+
+sub tsky2tau_bydate {
+  my ($mjd, $airmass, $tamb, @tsky) = @_;
   return 0.0 if $airmass < 0.00001;
   my $pwvlos = tsky2pwv( $airmass, $tamb, @tsky );
   my $pwvzen = pwv2zen( $airmass, $pwvlos );
-  return pwv2tau( $pwvzen );
+  return pwv2tau_bydate( $mjd, $pwvzen );
 }
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010-2011 Science and Technology Facilities Council.
+Copyright (C) 2010-2011,2013 Science and Technology Facilities Council.
 Copyright 2004 (C) Particle Physics and Astronomy Research Council.
 All Rights Reserved.
 

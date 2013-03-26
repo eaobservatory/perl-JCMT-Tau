@@ -38,7 +38,7 @@ is( sprintf("%4.2f", $pwvzen), $pwvzenref, "Compare zenith pwv");
 
 
 my $tauzen = sprintf( "%6.4f",
-		      JCMT::Tau::WVM::WVMLib::pwv2tau( $pwvzen));
+		      JCMT::Tau::WVM::WVMLib::pwv2tau_bydate( 56_000.0, $pwvzen));
 
 print "# Zenith tau = ", $tauzen ,"\n";
 
@@ -46,7 +46,7 @@ is( $tauzen, $tauref, "Compare with pre-calculated zenith tau");
 
 # Now do it in one go using the wrapper routine
 my $tauzen2 = sprintf( "%6.4f",
-    JCMT::Tau::WVM::WVMLib::tsky2tau( $airmass, $tamb, $tsky1, $tsky2, $tsky3 ));
+    JCMT::Tau::WVM::WVMLib::tsky2tau_bydate( 56_000.0, $airmass, $tamb, $tsky1, $tsky2, $tsky3 ));
 
 is( $tauzen2, $tauzen, "Compare with wrapper function");
 

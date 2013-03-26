@@ -13,6 +13,11 @@ pwv2tau(pwv)
   double pwv
 
 double
+pwv2tau_bydate( mjdate, mmH2O_z)
+  double mjdate
+  double mmH2O_z
+
+double
 tau2pwv(tau)
   double tau
 

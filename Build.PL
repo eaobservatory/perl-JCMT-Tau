@@ -22,6 +22,7 @@ my $build = Module::Build->new
    requires => {
                 "DateTime" => 0,
                 "DateTime::TimeZone" => 0,
+                "DateTime::Format::Strptime" => 0,
                 "DateTime::Format::ISO8601" => 0,
                 "Statistics::Descriptive::Discrete" => 0,
                },

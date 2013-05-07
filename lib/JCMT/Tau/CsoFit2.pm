@@ -1,8 +1,8 @@
-package CsoFit2;
+package JCMT::Tau::CsoFit2;
 
 =head1 NAME
 
-CsoFit2 - Process fits to CSO data created by csofit.py.
+JCMT::Tau::CsoFit2 - Process fits to CSO data created by csofit.py.
 
 =head1 SYNOPSIS
 
@@ -30,7 +30,7 @@ use DateTime::Format::Strptime;
 use IO::File;
 
 use vars qw/ $VERSION /;
-$VERSION = "0.10";
+$VERSION = "0.11";
 
 =head1 DESCRIPTION
 

@@ -120,7 +120,7 @@ Calculate blended tau at given time.
 Returns 'nan' for unfitted times.
 $t is a unix timestamps ala DateTime::hires_epoch().
 
-    $csotau = $subset->tau( $t0, $t1 );
+    $csotau = $subset->tau( $t );
 
 =cut
 

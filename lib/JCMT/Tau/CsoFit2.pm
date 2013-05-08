@@ -117,7 +117,7 @@ sub get {
 =item B<tau>
 
 Calculate blended tau at given time.
-Returns 'nan' for unfitted times.
+Returns undef for unfitted times.
 $t is a unix timestamps ala DateTime::hires_epoch().
 
     $csotau = $subset->tau( $t );
@@ -148,7 +148,7 @@ sub tau {
         $y += $fw * $fy;
         $w += $fw;
     }
-    if ($w == 0.0) { $y = 'nan'; } else { $y /= $w; }
+    if ($w == 0.0) { $y = undef; } else { $y /= $w; }
     return $y;
 }
 

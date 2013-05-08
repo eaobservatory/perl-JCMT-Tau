@@ -6,10 +6,10 @@ JCMT::Tau::CsoFit2 - Process fits to CSO data created by csofit.py.
 
 =head1 SYNOPSIS
 
- use CsoFit2;
+ use JCMT::Tau::CsoFit2;
 
  # Read in a file of tau fits.
- $fit = new CsoFit2( $filename );
+ $fit = new JCMT::Tau::CsoFit2( $filename );
 
  # Get a subset of fits for a specific range (speeds up calcs).
  # $t0 and $t1 should be unix timestamps, ie DateTime::epoch().
@@ -46,7 +46,7 @@ fits to the CSO tau data produced by csofit.py.
 Open the file containing the fits and read it in to the
 returned object.
 
-    $fit = CsoFit2( $filename );
+    $fit = JCMT::Tau::CsoFit2( $filename );
 
 =cut
 

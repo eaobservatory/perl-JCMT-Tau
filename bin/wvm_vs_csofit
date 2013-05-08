@@ -1,0 +1,155 @@
+#!/usr/bin/env perl
+
+=head1 NAME
+
+wvm_vs_csofit - correlate WVM and fitted CSO tau values
+
+=head1 SYNOPSIS
+
+    wvm_vs_csofit date_start date_end filename.dat
+
+=head1 DESCRIPTION
+
+This script reads JCMT WVM tau values for a range of dates.
+For each measurement it uses the fitted CSO tau data to
+calculate the CSO tau for the same time.
+
+=head2 OPTIONS
+
+The following command line parameters must be given:
+
+=over 4
+
+=item Start date (UT, format YYYYMMDD)
+
+=item End date (inclusive, UT, format YYYYMMDD)
+
+=item CSO fit filename
+
+=back
+
+=head2 OUTPUT
+
+It prints to standard output the columns:
+
+=over 4
+
+=item Date and Time
+
+=item Tau value from CSO fit
+
+=item WVM tau value
+
+=item Difference (WVM - CSO)
+
+=back
+
+=head1 EXAMPLE
+
+    wvm_vs_csofit 20120101 20120131 csofit2-201201.dat > comparison.txt
+
+    topcat -f ascii comparison.txt
+
+=cut
+
+use DateTime;
+use Pod::Usage;
+
+use JCMT::Tau::WVM;
+use JCMT::Tau::CsoFit2;
+
+use strict;
+
+# Check if the correct command line arguments have been provided,
+# and if not, print the usage.
+
+if (1 == scalar @ARGV and $ARGV[0] =~ /(help|man)/i) {
+    pod2usage(-verbose => 2);
+}
+elsif (3 != scalar @ARGV) {
+    pod2usage(-verbose => 0);
+}
+
+
+local $, = ' ';
+local $\ = "\n";
+
+my $date_start = ut_date_to_datetime($ARGV[0], 0);
+my $date_end   = ut_date_to_datetime($ARGV[1], 1);
+my $filename   = $ARGV[2];
+
+die "File $filename does not exist" unless -e $filename;
+
+
+# Read JCMT WVM data.
+
+my $wvm = new JCMT::Tau::WVM(start_time => $date_start, end_time => $date_end);
+my $wvm_data = $wvm->data();
+
+
+# Read CSO fit.
+
+my $cso_fit = new JCMT::Tau::CsoFit2($filename);
+my $cso_subset = $cso_fit->get($date_start->epoch(), $date_end->epoch());
+
+
+# Print ASCII file header.
+
+print qw/# DateTime CSO WVM Difference/;
+
+
+# Loop over WVM data points and print out the comparison.
+
+foreach my $epoch (sort keys %$wvm_data) {
+    my $wvm_tau = $wvm_data->{$epoch};
+    my $cso_tau = $cso_subset->tau($epoch);
+
+    next unless defined $cso_tau;
+
+    my $dt = DateTime->from_epoch(epoch => $epoch);
+    print $dt, $cso_tau, $wvm_tau, $wvm_tau - $cso_tau;
+}
+
+
+# ut_date_to_datetime($ut_string, $is_end)
+#
+# Convert a UT date string into a DateTime object.
+#
+# If the end of the day is requested, the time is set to 23:59:59,
+# otherwise it is 00:00:00.
+
+sub ut_date_to_datetime {
+    my $date = shift;
+    my $end = shift;
+
+    my ($h, $m, $s) = $end ? (23, 59, 59) : (0, 0, 0);
+
+    die 'Invalid date: ' . $date unless $date =~ /^(\d\d\d\d)(\d\d)(\d\d)$/;
+
+    return new DateTime(year => $1, month => $2, day => $3,
+        hour=> $h, minute => $m, second => $s, time_zone => 'UTC');
+}
+
+__END__
+
+=head1 COPYRIGHT
+
+Copyright (C) 2013 Science And Technology Facilities Council.
+All Rights Reserved.
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 3 of
+the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public
+License along with this program; if not, write to the Free
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+MA 02111-1307, USA
+
+=cut

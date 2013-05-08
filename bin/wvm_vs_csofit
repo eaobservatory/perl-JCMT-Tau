@@ -95,7 +95,7 @@ my $cso_subset = $cso_fit->get($date_start->epoch(), $date_end->epoch());
 
 # Print ASCII file header.
 
-print qw/# DateTime CSO WVM Difference/;
+print qw/#DateTime CSO WVM Difference CSO_mar/;
 
 
 # Loop over WVM data points and print out the comparison.
@@ -106,8 +106,9 @@ foreach my $epoch (sort keys %$wvm_data) {
 
     next unless defined $cso_tau;
 
+    my $cso_mar = $cso_subset->mar($epoch);
     my $dt = DateTime->from_epoch(epoch => $epoch);
-    print $dt, $cso_tau, $wvm_tau, $wvm_tau - $cso_tau;
+    print $dt, $cso_tau, $wvm_tau, $wvm_tau - $cso_tau, $cso_mar;
 }
 
 

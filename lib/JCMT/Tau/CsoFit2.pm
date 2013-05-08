@@ -71,7 +71,8 @@ sub new {
         push(@fits, [
             $strp->parse_datetime($toks[0])->hires_epoch(),
             $strp->parse_datetime($toks[1])->hires_epoch(),
-            @toks[3..(3+$toks[2])]
+            @toks[3..(3+$toks[2])],
+            $toks[6 + $toks[2]],
             ]
         );
     }
@@ -139,7 +140,7 @@ sub tau {
         # evaluate fit polynomial at this point
         my $fy = 0.0;
         my $ft = ($t - $$fref[0]) / $width;
-        my $last = $#{$fref};
+        my $last = $#{$fref} - 1;
         my $deg = $last - 2;
         foreach my $c (@$fref[2..$last]) {
             $fy += ($ft**$deg) * $c;
@@ -150,6 +151,39 @@ sub tau {
     }
     if ($w == 0.0) { $y = undef; } else { $y /= $w; }
     return $y;
+}
+
+=item B<mar>
+
+Return weighted MAR from the fits which
+apply at a given time.
+
+    $mar = $subset->mar($t);
+
+=cut
+
+sub mar {
+    my $self = shift;
+    my $t = shift;
+
+    my $m = 0.0;
+    my $w = 0.0;
+
+    foreach my $fref (@{$self->{'fits'}}) {
+        # Same calculation of $fw as in tau() above...
+        my $width = $$fref[1] - $$fref[0];
+        my $center = ($$fref[1] + $$fref[0]) * 0.5;
+        # calc weight -- double smoothstep with 1s fudge.
+        my $fw = 1.0 - (abs($t - $center) / ($width * 0.5 + 1.0));
+
+        next if $fw < 0.0;
+
+        $m += $fw * $fref->[-1];
+        $w += $fw;
+    }
+
+    return undef if $w == 0.0;
+    return $m / $w;
 }
 
 =back

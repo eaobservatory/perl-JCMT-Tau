@@ -72,7 +72,7 @@ sub new {
             $strp->parse_datetime($toks[0])->hires_epoch(),
             $strp->parse_datetime($toks[1])->hires_epoch(),
             @toks[3..(3+$toks[2])],
-            $toks[6 + $toks[2]],
+            $toks[7 + $toks[2]],
             ]
         );
     }

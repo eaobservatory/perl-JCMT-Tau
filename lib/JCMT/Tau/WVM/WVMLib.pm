@@ -38,7 +38,7 @@ use vars qw/ @ISA @EXPORT_OK $VERSION /;
 # Module::Build seems to insist that this version matches
 # the dist version because that is what is used to defined
 # XS_VERSION in the XS C code.
-$VERSION = '1.10';
+$VERSION = '1.11';
 
 @EXPORT_OK = qw/ pwv2tau tsky2pwv pwv2zen tsky2tau wvmOpt wvmEst
                  tsky2expected wvmOptMulti

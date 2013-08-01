@@ -13,7 +13,7 @@ my $build = Module::Build->new
    author => [
               'Tim Jenness <tjenness@cpan.org>',
              ],
-   dist_version => '1.10',
+   dist_version => '1.11',
    meta_merge => {
                resources =>  {
                               repository => "ssh://starlink.jach.hawaii.edu/jac_sw/gitroot/perl-JCMT-Tau.git",

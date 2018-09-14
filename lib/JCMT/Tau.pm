@@ -268,7 +268,7 @@ sub transmission ($$) {
 
 Calculate the airmass for a given elevation. This is a simplistic
 calculation and should not be used for low elevations (airmass>2) 
-- use Astro::SLA slaAirmas() for a more accurate calculation.
+- use Astro::PAL palAirmas() for a more accurate calculation.
 
 =head2 Parameters
 

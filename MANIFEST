@@ -3,6 +3,7 @@ README
 ChangeLog
 Build.PL
 lib/JCMT/Tau/CsoFit.pm
+lib/JCMT/Tau/CsoFit2.pm
 lib/JCMT/Tau/SCUBA2.pm
 lib/JCMT/Tau/WVM/WVMGDGraph.pm
 lib/JCMT/Tau/WVM/WVMLib.pm
@@ -10,7 +11,11 @@ lib/JCMT/Tau/WVM/WVMLib.xs
 lib/JCMT/Tau/WVM/WVMServer.pm
 lib/JCMT/Tau/WVM.pm
 lib/JCMT/Tau.pm
+src/arrays.c
+src/arrays.h
 t/airmass.t
+t/csofit2.dat
+t/csofit2.t
 t/get_tau.t
 t/get_tau_s2.t
 t/transmission.t
@@ -19,7 +24,14 @@ t/wvm-pwv2tau.t
 t/wvm-tsky2tau.t
 t/wvm.t
 t/wvmdata/20041108/20041108.wvm
+typemap
 wvm-server/wvmsrv.pl
+wvm-src/Axb.c
+wvm-src/compiler.h
+wvm-src/levmar.h
+wvm-src/lmbc.c
+wvm-src/misc.c
+wvm-src/misc.h
 wvm-src/wvmCal.c
 wvm-src/wvmCal.h
 wvm-src/wvmOpt.c

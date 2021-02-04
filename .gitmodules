@@ -1,0 +1,3 @@
+[submodule "wvm-src"]
+	path = wvm-src
+	url = ../jcmt-wvm.git

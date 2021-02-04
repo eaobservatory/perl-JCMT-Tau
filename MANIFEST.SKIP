@@ -1,0 +1,15 @@
+^MYMETA.yml$
+^MYMETA.json$
+^\.git
+^_build
+^Build$
+^blib
+^lib\/JCMT\/Tau\/WVM\/WVMLib.c
+^MANIFEST\.SKIP$
+^test.png$
+^wvm-src\/\.git$
+^bin\/
+~$
+\.bak$
+\..*\.swp$
+\.o$

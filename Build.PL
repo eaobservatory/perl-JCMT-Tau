@@ -33,7 +33,7 @@ my $build = Module::Build->new
    build_requires => {
                       "Test::More" => 0,
                      },
-   c_source => [ "wvm-src" ],
+   c_source => [ "src", "wvm-src" ],
   );
 
 $build->create_build_script;

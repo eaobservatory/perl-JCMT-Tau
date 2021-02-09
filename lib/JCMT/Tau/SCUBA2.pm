@@ -37,8 +37,8 @@ require Exporter;
 
 # These are the values in the SCUBA-2 calibration paper
 %Tau_Relation = (
-                 "CSO:450" => [ 26.0, -0.0120 ],
-                 "CSO:850" => [  4.6, -0.0043 ],
+                 "CSO:450" => [ 26.0, -0.0120, 0.0 ],
+                 "CSO:850" => [  4.6, -0.0043, 0.0 ],
 );
 
 # Calculate inverse

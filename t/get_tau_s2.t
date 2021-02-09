@@ -1,6 +1,6 @@
 # -*- cperl -*-
 use strict;
-use Test::More tests => 9;
+use Test::More tests => 7;
 use Test::Number::Delta;
 use JCMT::Tau::SCUBA2;
 
@@ -34,10 +34,3 @@ is($this, 428.2);
 
 is($stat, 0);
 delta_within($this, 1.0, 0.1);
-
-
-# === Now invert
-($this, $stat) = get_tau('CSO', '450', $this);
-is($stat, 0);
-delta_within($this, 0.05, 0.01);
-

@@ -1,6 +1,6 @@
 use strict;
-use Test;
-BEGIN { plan tests => 3 }
+use Test::More tests => 3;
+use Test::Number::Delta;
 use JCMT::Tau;
 
 # ================================================================
@@ -11,11 +11,10 @@ use JCMT::Tau;
 # === 1st Test: TRANSMISSION bad parameters ===
 
 my ($this,$stat) = transmission(0,1);
-ok($stat, -1);
+is($stat, -1);
 
 # === 2nd Test: TRANSMISSION ===
 
 ($this,$stat) = transmission(1.1,1);
-$this = sprintf("%.1lf",$this);
-ok($stat, 0);
-ok($this, 0.3);
+is($stat, 0);
+delta_within($this, 0.3, 0.1);

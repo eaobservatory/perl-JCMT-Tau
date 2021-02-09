@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use Test::More tests => 4;
+use Test::Number::Delta;
 
 use_ok( "JCMT::Tau::CsoFit2" );
 
@@ -22,4 +23,4 @@ print "# Start epoch tau = $starttau\n";
 my $starttau_0 = $fit->tau( $startepoch );
 is( $starttau, $starttau_0, "Tau from start using 2 techniques" );
 
-is( sprintf("%.3f", $starttau), "0.130", "Start tau");
+delta_within($starttau, 0.130, 0.001, "Start tau");

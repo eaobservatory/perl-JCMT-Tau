@@ -1,6 +1,7 @@
 #!perl
 use strict;
 use Test::More tests => 7;
+use Test::Number::Delta;
 
 use_ok( 'JCMT::Tau::WVM::WVMLib' );
 
@@ -29,26 +30,24 @@ my $pwvlos  = JCMT::Tau::WVM::WVMLib::tsky2pwv( $airmass,
 						$tsky3);
 
 print "# PWV Line-of-sight = ", $pwvlos,"\n";
-is( sprintf("%4.2f", $pwvlos), $pwvlosref, "Compare line of sight pwv");
+delta_within($pwvlos, $pwvlosref, 0.01, "Compare line of sight pwv");
 
 my $pwvzen = JCMT::Tau::WVM::WVMLib::pwv2zen($airmass, $pwvlos);
 
 print "# PWV zenith        = ", $pwvzen,"\n";
-is( sprintf("%4.2f", $pwvzen), $pwvzenref, "Compare zenith pwv");
+delta_within($pwvzen, $pwvzenref, 0.01, "Compare zenith pwv");
 
 
-my $tauzen = sprintf( "%6.4f",
-		      JCMT::Tau::WVM::WVMLib::pwv2tau_bydate( 56_000.0, $pwvzen));
+my $tauzen = JCMT::Tau::WVM::WVMLib::pwv2tau_bydate( 56_000.0, $pwvzen);
 
 print "# Zenith tau = ", $tauzen ,"\n";
 
-is( $tauzen, $tauref, "Compare with pre-calculated zenith tau");
+delta_within( $tauzen, $tauref, 0.0001, "Compare with pre-calculated zenith tau");
 
 # Now do it in one go using the wrapper routine
-my $tauzen2 = sprintf( "%6.4f",
-    JCMT::Tau::WVM::WVMLib::tsky2tau_bydate( 56_000.0, $airmass, $tamb, $tsky1, $tsky2, $tsky3 ));
+my $tauzen2 = JCMT::Tau::WVM::WVMLib::tsky2tau_bydate( 56_000.0, $airmass, $tamb, $tsky1, $tsky2, $tsky3 );
 
-is( $tauzen2, $tauzen, "Compare with wrapper function");
+delta_within( $tauzen2, $tauzen, 0.0001, "Compare with wrapper function");
 
 # Make sure that wvmOpt gives same answer as tsky2pwv
 

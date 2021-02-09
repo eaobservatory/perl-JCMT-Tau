@@ -32,6 +32,7 @@ my $build = Module::Build->new
                  },
    build_requires => {
                       "Test::More" => 0,
+                      "Test::Number::Delta" => 0,
                      },
    c_source => [ "src", "wvm-src" ],
   );

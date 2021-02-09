@@ -17,14 +17,14 @@ JCMT::Tau - Module for dealing with sky opacity related topics.
 
 =head1 DESCRIPTION
 
-It is often the case that the zenith sky opacity at 450 or 850 microns is 
+It is often the case that the zenith sky opacity at 450 or 850 microns is
 unknown, but the opacity at 225 GHz is available from the Caltech Submillimeter
-Observatory (http://puuoo.caltech.edu/index.html). The empirical relationships 
+Observatory (http://puuoo.caltech.edu/index.html). The empirical relationships
 between 450 Tau and 850 Tau with CSO Tau have been derived from past skydips at
-the JCMT. Similar relations have also been derived for 350 and 750 microns, 
-although there is currently very little data to support them. This module 
-presently contains two functions: get_tau for retrieving sky opacity at 450, 
-850, 350 and 750  microns and transmission for calculating the atmospheric 
+the JCMT. Similar relations have also been derived for 350 and 750 microns,
+although there is currently very little data to support them. This module
+presently contains two functions: get_tau for retrieving sky opacity at 450,
+850, 350 and 750  microns and transmission for calculating the atmospheric
 transmission coefficient at a given airmass and sky opacity.
 
 =cut
@@ -65,7 +65,7 @@ called.
 
 =item 1.
 
-The first parameter is a string naming the Tau value that is desired, which 
+The first parameter is a string naming the Tau value that is desired, which
 can be '450','850', '350' or '750'.
 
 =item 2.
@@ -92,7 +92,7 @@ function:
 
  status = 0: successful
          -1: failed due to invalid parameters
-         -2: target Tau = source Tau (but still returns 
+         -2: target Tau = source Tau (but still returns
              correct number)
 
 =head2 Storing Current Coefficients
@@ -102,7 +102,7 @@ sky opacities at different wavelengths are stored in a hash which is imported
 when the module is used, called %Tau_Relation. The keys are of the form 'x:y',
 and each element of the hash is an array containing a and b. For instance:
 
-  'CSO:450' => [25, -.011] 
+  'CSO:450' => [25, -.011]
 
 where y=450, x=CSO, a=25, b=-.011, and 'CSO:450' is a key for %Tau_Relation
 
@@ -117,20 +117,20 @@ where y=450, x=CSO, a=25, b=-.011, and 'CSO:450' is a key for %Tau_Relation
 # The reverse relationships are calculated immediately afterwards
 
 %Tau_Relation = (
-		 'CSO:450N' => [23.5,  -0.012],  # narrow band
-		 'CSO:850N' => [ 3.99, -0.004],  # narrow
-		 '850N:450N'=> [ 5.92, -0.032],  # narrow
-		 'CSO:450W' => [26.2,  -0.014],  # wideband filters
-		 '850W:450W'=> [ 6.52, -0.049],  # wideband filter
-		 'CSO:850W' => [ 4.02, -0.001],  # wideband filter
-		 'CSO:350'  => [28,    -0.012],
-		 '750:350'  => [ 2.6,  -0.004],
-		 'CSO:750'  => [ 9.3,  -0.007],
-		 'CSO:1350' => [ 1.4,   0.0 ],
-		 'CSO:1300' => [ 1.4,   0.0 ],
-		 'CSO:2000' => [ 0.9,   0.0 ],
-		 'CSO:200'  => [ 105,   0.0 ],   # Thumper
-		);
+    'CSO:450N' => [23.5,  -0.012],  # narrow band
+    'CSO:850N' => [ 3.99, -0.004],  # narrow
+    '850N:450N'=> [ 5.92, -0.032],  # narrow
+    'CSO:450W' => [26.2,  -0.014],  # wideband filters
+    '850W:450W'=> [ 6.52, -0.049],  # wideband filter
+    'CSO:850W' => [ 4.02, -0.001],  # wideband filter
+    'CSO:350'  => [28,    -0.012],
+    '750:350'  => [ 2.6,  -0.004],
+    'CSO:750'  => [ 9.3,  -0.007],
+    'CSO:1350' => [ 1.4,   0.0 ],
+    'CSO:1300' => [ 1.4,   0.0 ],
+    'CSO:2000' => [ 0.9,   0.0 ],
+    'CSO:200'  => [ 105,   0.0 ],   # Thumper
+);
 
 # Clone values for 450 and 850 based on the
 # wide band answers for backwards compatibility
@@ -244,11 +244,11 @@ The second parameter is the sky opacity at whatever wavelength is desired.
 =head2 Return Values
 
 transmission returns a 2-element list. The first element is the atmospheric
-transmission coefficient at whatever wavelength the sky opacity applied to. 
+transmission coefficient at whatever wavelength the sky opacity applied to.
 The second is a scalar containing the exit status of the function:
 
   status = 0: successful
-          -1: failed 
+          -1: failed
 
 =cut
 
@@ -275,7 +275,7 @@ sub transmission ($$) {
  ($airmass, $status) = airmass($elevation);
 
 Calculate the airmass for a given elevation. This is a simplistic
-calculation and should not be used for low elevations (airmass>2) 
+calculation and should not be used for low elevations (airmass>2)
 - use Astro::PAL palAirmas() for a more accurate calculation.
 
 =head2 Parameters
@@ -341,16 +341,16 @@ that 450 Tau as returned by get_tau should be treated with suspicion
 for CSO Tau above 0.1 and 850 Tau above 0.5, due to extra absorption
 mechanisms in the atmosphere.
 
-If possible, 450 Tau should be derived from 850 Tau rather than CSO Tau. The 
+If possible, 450 Tau should be derived from 850 Tau rather than CSO Tau. The
 reason is that the relation between 450 Tau and 850 Tau is known with greater
-certainty: Every time a skydip is performed by the JCMT, data is collected 
-simultaneously at 450 microns and 850 microns, thus eliminating uncertainty in 
+certainty: Every time a skydip is performed by the JCMT, data is collected
+simultaneously at 450 microns and 850 microns, thus eliminating uncertainty in
 time. There is much more uncertainty when including observations by the CSO,
 simply because it is a different instrument, and observations are not taken
 simulatenously with the JCMT.
 
 Although it is possible to derive 850 Tau from 450 Tau, it is not a good idea.
-Measurements at 450 Microns have a high degree of uncertainty, so you are 
+Measurements at 450 Microns have a high degree of uncertainty, so you are
 better off deriving from CSO Tau.
 
 The 350 and 750 Tau ratios are only a first guess, based on roughly 20 data

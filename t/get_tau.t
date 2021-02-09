@@ -46,4 +46,3 @@ delta_within($this, 0.05, 0.01);
 ($this, $stat) = get_tau('850W', 'CSO', 0.05);
 is($stat,0);
 delta_within($this, 0.2, 0.1);
-

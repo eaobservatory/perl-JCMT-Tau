@@ -74,10 +74,10 @@ sub new {
 
   # create the object
   my $wvm = bless {
-		   privateStartTime => undef,
-		   privateEndTime  => undef,
-		   privateData     => {},
-		  }, $class;
+                   privateStartTime => undef,
+                   privateEndTime  => undef,
+                   privateData     => {},
+                  }, $class;
 
   # configure it
   # Go through the input args invoking relevant methods
@@ -136,9 +136,9 @@ sub start_time {
     my $val = shift;
     if (defined $val) {
       if (UNIVERSAL::isa($val, "DateTime")) {
-	      $self->{privateStartTime} = $val;
+              $self->{privateStartTime} = $val;
       } else {
-	      croak "Must supply start time with an 'DateTime' object not '$val'";
+              croak "Must supply start time with an 'DateTime' object not '$val'";
       }
     } else {
       $self->{privateStartTime} = undef;
@@ -166,9 +166,9 @@ sub end_time {
     my $val = shift;
     if (defined $val) {
       if (UNIVERSAL::isa($val, "DateTime")) {
-	      $self->{privateEndTime} = $val;
+              $self->{privateEndTime} = $val;
       } else {
-	      croak "Must supply end time with an 'DateTime' object not '$val'";
+              croak "Must supply end time with an 'DateTime' object not '$val'";
       }
     } else {
       $self->{privateEndTime} = undef;
@@ -246,7 +246,7 @@ sub read_data {
 
       #chdir "$file" or die "Could not cd to $file";
       open my $DATAFILE, "<$file"
-	  or die "Couldn't open $file: $!\n";
+          or die "Couldn't open $file: $!\n";
 
       # determine file format:
       # old: decimal number of hours
@@ -263,17 +263,17 @@ sub read_data {
       # if we are only interested in a subset of the night.
       my ($minhr, $maxhr);
       if ($dt->ymd eq $start->ymd) {
-	# should be a method for this in DateTime
-	$minhr = $start->hour + ( $start->minute / 60 ) +
-	         ($start->second / 3600 );
+        # should be a method for this in DateTime
+        $minhr = $start->hour + ( $start->minute / 60 ) +
+                 ($start->second / 3600 );
       } else {
-	$minhr = 0.0;
+        $minhr = 0.0;
       }
       if ($dt->ymd eq $end->ymd) {
-	$maxhr = $end->hour + ( $end->minute / 60 ) +
-	         ($end->second / 3600 );
+        $maxhr = $end->hour + ( $end->minute / 60 ) +
+                 ($end->second / 3600 );
       } else {
-	$maxhr = 24.0;
+        $maxhr = 24.0;
       }
 
       # For cases where we are only asking for a small chunk of the
@@ -290,8 +290,8 @@ sub read_data {
       # loop over each line
       my $prevhr = 0; # start low. Add 24hr if previous is higher than next
       while (<$DATAFILE>) {
-	  $_ =~ s/^\s+//;
-	  my @string = split /\s+/, $_;
+          $_ =~ s/^\s+//;
+          my @string = split /\s+/, $_;
           my ($hour, $linedt);
           if ($newformat) {
             $linedt = DateTime::Format::ISO8601->parse_datetime($string[0]);
@@ -302,23 +302,23 @@ sub read_data {
             $hour = $string[0];
           }
 
-	  # Sometimes the next value is lower than the previous value
-	  # If this happens, we need to add 24 since this indicates the
-	  # file has gone slightly too big. This is problematic
-	  # for the general case since this value should be read from the
-	  # following file
-	  $hour += 24 if $hour < $prevhr;
-	  $prevhr = $hour;
+          # Sometimes the next value is lower than the previous value
+          # If this happens, we need to add 24 since this indicates the
+          # file has gone slightly too big. This is problematic
+          # for the general case since this value should be read from the
+          # following file
+          $hour += 24 if $hour < $prevhr;
+          $prevhr = $hour;
 
-	  # Check hour range
-	  next if $hour < $minhr;
-	  last if $hour > $maxhr;
+          # Check hour range
+          next if $hour < $minhr;
+          last if $hour > $maxhr;
 
-	  # Convert fractional hour to an epoch
-	  # by adding it to the base
-	  # we could remove the clone step if we simply added the delta
-	  # from each row to the next but that would introduce rounding
-	  # errors by the end of the file
+          # Convert fractional hour to an epoch
+          # by adding it to the base
+          # we could remove the clone step if we simply added the delta
+          # from each row to the next but that would introduce rounding
+          # errors by the end of the file
           my $time;
 
           # We also need the MJD although really we only need this to a day accuracy
@@ -334,16 +334,16 @@ sub read_data {
             $time = $dtdelta->hires_epoch;
             $mjd = $dtdelta->mjd;
           }
-	  # print "pwv: $string[9] airmass: $string[1]  hr: $string[0] time: $time [$mjd]\n";
-	  my $tau = sprintf("%6.4f", pwv2tau_bydate($mjd, $string[9]));
+          # print "pwv: $string[9] airmass: $string[1]  hr: $string[0] time: $time [$mjd]\n";
+          my $tau = sprintf("%6.4f", pwv2tau_bydate($mjd, $string[9]));
 
-	  # Note that we do get rounding errors when using a integer
-	  # second epoch. Just average
-	  if (exists $wvmdata{$time}) {
-	    $wvmdata{$time} = ($tau + $wvmdata{$time}) / 2;
-	  } else {
-	    $wvmdata{$time} = $tau;
-	  }
+          # Note that we do get rounding errors when using a integer
+          # second epoch. Just average
+          if (exists $wvmdata{$time}) {
+            $wvmdata{$time} = ($tau + $wvmdata{$time}) / 2;
+          } else {
+            $wvmdata{$time} = $tau;
+          }
 
       }
   }
@@ -375,7 +375,7 @@ sub stats {
   $stats->add_data( values %{ $self->data } );
 
   return ( $stats->mean, $stats->standard_deviation,
-	   $stats->median, $stats->mode );
+           $stats->median, $stats->mode );
 }
 
 
@@ -451,7 +451,7 @@ Control the base directory for obtaining data.
     sub data_root {
       my $self = shift;
       if (@_) {
-	$DATA_ROOT = shift;
+        $DATA_ROOT = shift;
       }
       return $DATA_ROOT;
     }
@@ -486,10 +486,10 @@ sub _getBaseDT {
   my $year = $1;
 
   return DateTime->new( year => $year,
-			month => $month,
-			day => $day,
-			time_zone => $utc
-		      );
+                        month => $month,
+                        day => $day,
+                        time_zone => $utc
+                      );
 }
 
 =item B<_seek_to_start>
@@ -512,7 +512,7 @@ sub _seek_to_start {
   # read the first line to get a starting point
   my $lowhr = _quick_read( $fh );
 
-  # reset seek position and return immediately if that line was 
+  # reset seek position and return immediately if that line was
   # valid
   if ($lowhr > $refhr) {
     seek( $fh, 0, SEEK_SET );
@@ -627,16 +627,16 @@ sub _getFiles {
 
     # Need to start with just Y M and D
     my $date = new DateTime( year => $start->year,
-			     month => $start->month,
-			     day => $start->day
-			   );
+                             month => $start->month,
+                             day => $start->day
+                           );
 
     # if the end date starts with 00:00 then we should not bother
     # opening the file
     my $enddate = new DateTime( year => $end->year,
-				month => $end->month,
-				day => $end->day,
-			      );
+                                month => $end->month,
+                                day => $end->day,
+                              );
     $enddate->subtract( seconds => 1 )
       if ($end->hour == 0 && $end->minute == 0 && $end->second == 0);
 
@@ -645,9 +645,9 @@ sub _getFiles {
     # Now we can loop until our ref date is greater than the end date
     while ($date < $end) {
         my $ymd = $date->strftime('%Y%m%d');
-	my $file = File::Spec->catfile( $self->data_root, $ymd, "$ymd.wvm");
-	push @files, $file if -e $file;
-	$date->add( days => 1 );
+        my $file = File::Spec->catfile( $self->data_root, $ymd, "$ymd.wvm");
+        push @files, $file if -e $file;
+        $date->add( days => 1 );
     }
     return @files;
 }

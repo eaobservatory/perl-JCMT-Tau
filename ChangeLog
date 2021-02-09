@@ -1,62 +1,60 @@
 2011-01-10  Tim Jenness  <timj@jach.hawaii.edu>
 
-	* Build.PL: Use Module::Build
+    * Build.PL: Use Module::Build
 
 2005-03-18  Tim Jenness  <timj@jach.hawaii.edu>
 
-	* Tau.pm: Add placeholder for 200 micron THUMPER
+    * Tau.pm: Add placeholder for 200 micron THUMPER
 
 2005-01-03  Tim Jenness  <timj@jach.hawaii.edu>
 
-	* WVM/WVM.pm (read_data): Ignore values at the end of the file
-	that are from the next UT.
-	
-	* WVM/WVM.pm (_seek_to_start): Take into account the possibility
-	that the hour read from the last line could be barely > than 0.0
+    * WVM/WVM.pm (read_data): Ignore values at the end of the file
+      that are from the next UT.
+
+    * WVM/WVM.pm (_seek_to_start): Take into account the possibility
+      that the hour read from the last line could be barely > than 0.0
 
 2001-09-04  Tim Jenness  <timj@jach.hawaii.edu>
 
-	* CsoFit/CsoFit.pm: Fix confusing typos in synopsis
+    * CsoFit/CsoFit.pm: Fix confusing typos in synopsis
 
 2000-10-24  Tim Jenness  <timj@jach.hawaii.edu>
 
-	* Tau.pm: Add updated ratios for wideband
+    * Tau.pm: Add updated ratios for wideband
 
 2000-07-17  Tim Jenness  <timj@jach.hawaii.edu>
 
-	* t/airmass.t: Use Test module
+    * t/airmass.t: Use Test module
 
-	* t/transmission.t: Use Test module
+    * t/transmission.t: Use Test module
 
-	* t/get_tau.t: Add some extra tests for 450W and use the Test module
+    * t/get_tau.t: Add some extra tests for 450W and use the Test module
 
 2000-03-09  Tim Jenness  <timj@jach.hawaii.edu>
 
-	* Tau.pm: Change ratios at 450/850 for wideband filters
+    * Tau.pm: Change ratios at 450/850 for wideband filters
 
 1999-10-22  Tim Jenness  <timj@jach.hawaii.edu>
 
-	* Tau.pm (airmass): Should have croaked rather than carped.
+    * Tau.pm (airmass): Should have croaked rather than carped.
 
 1999-10-21  Tim Jenness  <timj@jach.hawaii.edu>
 
-	* Tau.pm: Automatically calculate the inverse relationships.
-		Version number now 1.03.
-		(number): Strip spaces before pattern match.
+    * Tau.pm: Automatically calculate the inverse relationships.
+      Version number now 1.03.
+      (number): Strip spaces before pattern match.
 
 1998-09-29  Tim Jenness  <timj@jach.hawaii.edu>
 
-	* Tau.pm: Put the 1350 and 2000 micron relationship into the module.
+    * Tau.pm: Put the 1350 and 2000 micron relationship into the module.
 
 1998-03-24  Ed Chapin  <echapin@ulu>
 
-	* Tau.pm (get_tau): Now use hash %Tau_Relation, which is exported.
-	This reduced a lot of the code, and makes it easier to input new
-	values for the relations in the future. Also makes it easy for the
-	user to determine what relations are being used in the module. 
-	
+    * Tau.pm (get_tau): Now use hash %Tau_Relation, which is exported.
+      This reduced a lot of the code, and makes it easier to input new
+      values for the relations in the future. Also makes it easy for the
+      user to determine what relations are being used in the module.
 
 1998-03-23  Ed Chapin  <echapin@ulu>
 
-	* Tau.pm: Initial Revision
-
+    * Tau.pm: Initial Revision

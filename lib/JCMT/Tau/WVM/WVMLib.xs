@@ -6,7 +6,7 @@
 
 #include "arrays.h"
 
-MODULE = JCMT::Tau::WVM::WVMLib	   PACKAGE = JCMT::Tau::WVM::WVMLib
+MODULE = JCMT::Tau::WVM::WVMLib    PACKAGE = JCMT::Tau::WVM::WVMLib
 
 double
 pwv2tau(pwv)
@@ -139,4 +139,3 @@ wvmEst( airmass, pwvlos, twat, tau0 )
   pAEFF = newAV();
   unpack1D( newRV_noinc((SV*)pAEFF), AEFF, 'd', 3 );
   XPUSHs( newRV_noinc((SV*)pAEFF));
-

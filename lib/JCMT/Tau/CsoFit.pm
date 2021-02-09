@@ -86,9 +86,9 @@ the C<readfits> method.
 sub filename {
     my $self = shift;
     if (@_) {
-	my $slurp = (defined $self->{File} ? 0 : 1);
-	$self->{File} = shift;
-	$self->readfits if $slurp;
+        my $slurp = (defined $self->{File} ? 0 : 1);
+        $self->{File} = shift;
+        $self->readfits if $slurp;
     }
     return $self->{File};
 }
@@ -131,36 +131,36 @@ sub add {
     # Loop through the current entries looking for overlap
     # Start by retrieving the parameters for that night
     if (exists $self->{Data}->{$ut}) {
-	my $ref = $self->{Data}->{$ut}; # simplify the code
+        my $ref = $self->{Data}->{$ut}; # simplify the code
 
-	if ($rem) {
+        if ($rem) {
 
-	    # Loop over each of the objects in the array
-	    # Need to keep track of the index so the element can
-	    # be removed
-	    for my $i (0.. $#{ $ref } ) {
-		
-		my $part = $ref->[$i];
+            # Loop over each of the objects in the array
+            # Need to keep track of the index so the element can
+            # be removed
+            for my $i (0.. $#{ $ref } ) {
 
-		# Check the start and end time
-		if (($start > $part->start_time() &&
-		     $start < $part->end_time()) ||
-		    ($end > $part->start_time() &&
-		     $end < $part->end_time() )
-		   ) {
+                my $part = $ref->[$i];
 
-		    # remove it
-		    splice(@{$ref}, $i,1);
+                # Check the start and end time
+                if (($start > $part->start_time() &&
+                     $start < $part->end_time()) ||
+                    ($end > $part->start_time() &&
+                     $end < $part->end_time() )
+                   ) {
 
-		}
+                    # remove it
+                    splice(@{$ref}, $i,1);
 
-	    }
+                }
 
-	}
+            }
+
+        }
 
     } else {
-	# Create an array for this ut
-	$self->{Data}->{$ut} = [];
+        # Create an array for this ut
+        $self->{Data}->{$ut} = [];
     }
 
     # Store the fit
@@ -197,19 +197,19 @@ sub readfits {
     # Read the file in a line at a time
     while (defined( my $line =<$io>)) {
 
-	# Construct an object based on the information in this string
-	my $night = JCMT::Tau::CsoFit::Fit->new( $line );
-	next unless defined $night;
-	my $ut = $night->label;
-	next unless defined $ut;
+        # Construct an object based on the information in this string
+        my $night = JCMT::Tau::CsoFit::Fit->new( $line );
+        next unless defined $night;
+        my $ut = $night->label;
+        next unless defined $ut;
 
-	# Store this hash in a hash indexed by UTdate
-	# that contains an array of these night hashes
-	if (exists $data{ $ut }) {
-	    push( @{ $data{ $ut } }, $night);
-	} else {
-	    $data{ $ut } = [ $night ];
-	}
+        # Store this hash in a hash indexed by UTdate
+        # that contains an array of these night hashes
+        if (exists $data{ $ut }) {
+            push( @{ $data{ $ut } }, $night);
+        } else {
+            $data{ $ut } = [ $night ];
+        }
 
     }
 
@@ -240,23 +240,23 @@ sub store {
 
     if (defined $io) {
 
-	# Loop through all the data keys
-	foreach my $ut (keys %{$self->{Data}}) {
+        # Loop through all the data keys
+        foreach my $ut (keys %{$self->{Data}}) {
 
-	    # Loop through all the sub fits
-	    foreach my $fit (@{ $self->{Data}->{$ut} }) {
+            # Loop through all the sub fits
+            foreach my $fit (@{ $self->{Data}->{$ut} }) {
 
-		# Get the freeze form of the data
-		my $str = $fit->freeze;
-		print $io "$str\n" or croak "Error writing to disk\n";
+                # Get the freeze form of the data
+                my $str = $fit->freeze;
+                print $io "$str\n" or croak "Error writing to disk\n";
 
-	    }
+            }
 
-	}
+        }
 
 
     } else {
-	return undef;
+        return undef;
     }
 
 
@@ -287,15 +287,15 @@ sub tau {
     # Start by retrieving the parameters for that night
     if (exists $self->{Data}->{$ut}) {
 
-	# Loop over each of the objects in the array
-	for my $part (@{ $self->{Data}->{$ut} } ) {
+        # Loop over each of the objects in the array
+        for my $part (@{ $self->{Data}->{$ut} } ) {
 
-	    # Calculate the tau value
-	    my $tau = $part->calc($frac);
+            # Calculate the tau value
+            my $tau = $part->calc($frac);
 
-	    # Return it if good
-	    return $tau if defined $tau;
-	}
+            # Return it if good
+            return $tau if defined $tau;
+        }
 
     }
 
@@ -338,9 +338,9 @@ sub expand {
     # Loop over each of the objects in the array
     my @results;
     for my $part (@{ $self->{Data}->{$ut} } ) {
-	# Calculate the tau value
-	my ($xref, $yref) = $part->expand($n);
-	push(@results, [ $xref, $yref]);
+        # Calculate the tau value
+        my ($xref, $yref) = $part->expand($n);
+        push(@results, [ $xref, $yref]);
     }
 
     return @results;
@@ -362,7 +362,7 @@ sub get {
     my $ut = shift;
 
     if (exists $self->{Data}->{$ut}) {
-	return @{ $self->{Data}->{$ut}};
+        return @{ $self->{Data}->{$ut}};
     }
     return ();
 }
@@ -390,10 +390,10 @@ JCMT::Tau::CsoFit::Fit - Process individual fits
 =head1 SYNOPSIS
 
     $night = new JCMT::Tau::CsoFit::Fit(
-					Coeffs => [ ],
-					Start  => $start,
-					End    => $end,
-				       );
+                                        Coeffs => [ ],
+                                        Start  => $start,
+                                        End    => $end,
+                                       );
 
 =head1 DESCRIPTION
 
@@ -441,8 +441,8 @@ sub new {
 
     my $obj = bless {}, $class;
     if (@_) {
-	$obj->thaw($_[0])
-	    or return undef;
+        $obj->thaw($_[0])
+            or return undef;
     }
 
     return $obj;
@@ -540,17 +540,17 @@ Convert the object to a string suitable for storing to disk.
 sub freeze {
     my $self = shift;
     my @data = (
-		$self->{Label},
-		$self->{Start},
-		$self->{End},
-		$#{ $self->{Coeffs} },
-		@{ $self->{Coeffs} },
-		$self->{Epsilon},
-		$self->{SD},
-		$self->{Clip},
-		$self->{YMin},
-		$self->{Ymax},
-	       );
+                $self->{Label},
+                $self->{Start},
+                $self->{End},
+                $#{ $self->{Coeffs} },
+                @{ $self->{Coeffs} },
+                $self->{Epsilon},
+                $self->{SD},
+                $self->{Clip},
+                $self->{YMin},
+                $self->{Ymax},
+               );
 
     return join(" ", @data);
 }
@@ -576,8 +576,8 @@ sub calc {
     my $val = 0;
     my $n = 0;
     for my $c ( @{ $self->{Coeffs} } ) {
-	$val += $c * $frac**$n;
-	$n++; # could n++ on previous line
+        $val += $c * $frac**$n;
+        $n++; # could n++ on previous line
     }
     return $val;
 }
@@ -602,12 +602,12 @@ sub expand {
     my $xrange = $self->end_time() - $self->start_time();
     my (@x, @y);
     for my $i (1..$n) {
-	my $xval = $self->start_time() + ( $i/$n * $xrange );
-	my $yval = $self->calc( $xval );
-	if (defined $yval) {
-	    push(@x, $xval);
-	    push(@y, $yval);
-	}
+        my $xval = $self->start_time() + ( $i/$n * $xrange );
+        my $yval = $self->calc( $xval );
+        if (defined $yval) {
+            push(@x, $xval);
+            push(@y, $yval);
+        }
     }
     return (\@x, \@y);
 }

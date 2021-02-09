@@ -11,27 +11,26 @@ a desired S/N ratio with SCUBA at the James Clerk Maxwell Telescope.
 
 The purpose of this module is to store relationships between
 zenith sky opacities at 350, 450, 750 and 850 microns with the
-opacity at 225 GHz as recorded by the Caltech Submillimeter 
+opacity at 225 GHz as recorded by the Caltech Submillimeter
 Observatory (http://puuoo.caltech.edu/index.html) - CSO Tau. The
 relationships have been determined by comparing skydips performed
-at the various wavelengths at the JCMT. 
+at the various wavelengths at the JCMT.
 
 It is hoped that as these opacity relationships are determined with
 greater precision, this module will continue to be used to store them.
-This will be particularly useful in the future at 350 and 750 
+This will be particularly useful in the future at 350 and 750
 microns, as at present these wavelengths have very little supporting
-skydip data. 
+skydip data.
 
 INSTALLATION
 
 This is a fairly simple, self-contained module. All that should be
 required is the following:
 
-	% perl Build.PL
-	% ./Build
-	% ./Build test
-	% ./Build install
-
+    % perl Build.PL
+    % ./Build
+    % ./Build test
+    % ./Build install
 
 AUTHOR
 

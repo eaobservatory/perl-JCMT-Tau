@@ -24,10 +24,10 @@ my $tauref    = '0.1395'; # 10
 
 # Calculate the line of sight parameters
 my $pwvlos  = JCMT::Tau::WVM::WVMLib::tsky2pwv( $airmass,
-						$tamb,
-						$tsky1,
-						$tsky2,
-						$tsky3);
+                                                $tamb,
+                                                $tsky1,
+                                                $tsky2,
+                                                $tsky3);
 
 print "# PWV Line-of-sight = ", $pwvlos,"\n";
 delta_within($pwvlos, $pwvlosref, 0.01, "Compare line of sight pwv");

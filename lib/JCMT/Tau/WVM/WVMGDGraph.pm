@@ -69,10 +69,10 @@ sub graph {
       # only keep data that are on 10 second boundaries
       # this only works because we have 1 second samples
       if ( ($i%10 ) == 0) {
-	  my $t = DateTime->from_epoch(epoch => $i, time_zone => $utc);
+          my $t = DateTime->from_epoch(epoch => $i, time_zone => $utc);
 
-	  push @xvals, $t->strftime('%H:%M');
-	  push @yvals, sprintf("%5.4f",$wvmdata->{$i});
+          push @xvals, $t->strftime('%H:%M');
+          push @yvals, sprintf("%5.4f",$wvmdata->{$i});
       }
 
   }
@@ -83,22 +83,22 @@ sub graph {
   # Create plot here
   my $graph = GD::Graph::lines-> new(520,340);
 
-  $graph->set( 
-	       x_label => 'UT Time',
-	       y_label => 'TAU',
-	       title => 'JCMT WVM',
-	       y_max_value => $y_max,
-	       y_min_value => $y_min,
+  $graph->set(
+               x_label => 'UT Time',
+               y_label => 'TAU',
+               title => 'JCMT WVM',
+               y_max_value => $y_max,
+               y_min_value => $y_min,
 
-	       y_number_format => "%6.4f",
-	       y_tick_number => 14,
-	       y_label_skip => 2,
-	       x_label_skip => 500,
-	       box_axis => 0,
-	       line_width => 3,
-	       transparent => 0,
+               y_number_format => "%6.4f",
+               y_tick_number => 14,
+               y_label_skip => 2,
+               x_label_skip => 500,
+               box_axis => 0,
+               line_width => 3,
+               transparent => 0,
 
-	       ) or die $graph->error;
+               ) or die $graph->error;
 
   my $gd = $graph->plot(\@data_set) or croak $graph->error;
   return $gd;
@@ -122,4 +122,3 @@ Bernd Weferling, Tim Jenness
 =cut
 
 1;
-

@@ -35,10 +35,10 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(transmission get_tau airmass %Tau_Relation);
 
-# These are the values in the SCUBA-2 calibration paper
+# These are the values in the 2021 SCUBA-2 calibration paper
 %Tau_Relation = (
-                 "CSO:450" => [ 26.0, -0.0120 ],
-                 "CSO:850" => [  4.6, -0.0043 ],
+                 "CSO:450" => [ 23.3, -0.018, 0.05  ],
+                 "CSO:850" => [ 3.71, -0.040, 0.202 ],
 );
 
 # Calculate inverse

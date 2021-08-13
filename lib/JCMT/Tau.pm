@@ -158,12 +158,16 @@ sub _invert_relations {
     # If the newkey is not present in the list (probably shouldnt be)
     # calculate and store the coefficients
     unless (exists $TauRef->{$newkey}) {
+      my $coeff = $TauRef->{$key};
+
+      # For now, we can only invert linear relations.
+      next if 1 < $#$coeff;
 
       # Inversion of the formulae gives:
       #   a' = 1/a
       #   b' = -ab
-      my $aprime = 1/ $TauRef->{$key}->[0];
-      my $bprime = -1 * $TauRef->{$key}->[0] * $TauRef->{$key}->[1];
+      my $aprime = 1/ $coeff->[0];
+      my $bprime = -1 * $coeff->[0] * $coeff->[1];
 
       $TauRef->{$newkey} = [$aprime, $bprime];
     }
@@ -179,6 +183,7 @@ sub get_tau ($$$) {
 }
 
 sub get_tau_with_relation {
+  my $opacity = $_[2];
   my $tau_ref = $_[4];
 
   # Read the arguments since we need to uppercase and strip them
@@ -192,18 +197,21 @@ sub get_tau_with_relation {
   my $name = $in . ':' . $out;
 
   # If target Tau = source Tau, just return the value that was given
-  return ($_[2],-2) if $out eq $in;
+  return ($opacity, -2) if $out eq $in;
 
   # Check to see if arg 3 is defined and is a number
   # First see if source Tau value is reasonable:
-  unless ( defined $_[2] && number($_[2]) && $_[2]>=0) {
+  unless (defined $opacity && number($opacity) && $opacity >= 0) {
     return (0,-1);
   }
 
   # If good parameters, find the return value of tau
 
   if ( defined $tau_ref && exists $tau_ref->{$name} ) {
-    return $tau_ref->{$name}[0]*($_[2] + $tau_ref->{$name}[1]),0;
+    my $coeff = $tau_ref->{$name};
+    my $unscaled = $opacity + $coeff->[1];
+    $unscaled += $coeff->[2] * sqrt($opacity) if 1 < $#$coeff;
+    return ($coeff->[0] * $unscaled, 0);
   }
 
   # If we haven't returned a good value yet, the parameters are bad
